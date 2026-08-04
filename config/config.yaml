@@ -1,0 +1,49 @@
+system:
+  name: "Cognitive Entanglement"
+  mode: "simulator" # Options: simulator, tello, px4
+  debug: true
+  swarm_size: 3     # Leader + 2 Followers
+
+security:
+  biometrics_enabled: true
+  voice_biometrics_enabled: true
+  voice_signature_threshold: 0.15
+  auth_facial_ratio_threshold: 0.05 # Margin for landmark distance matching
+  authorized_user_profile:
+    eye_to_mouth_ratio: 1.15
+    jaw_to_eyebrow_ratio: 0.85
+
+emotions:
+  facial_expression_tracking: true
+  safety_distance_scale_fear: 1.8 # Back away further if fear/anger is detected
+  smile_action: "victory_roll"    # Execute yaw-wiggle on smile
+
+eyes:
+  ear_threshold: 0.22      # Eye Aspect Ratio threshold (below this is closed)
+  dot_max_duration: 0.4    # Max seconds for a Morse dot
+  dash_max_duration: 1.5   # Max seconds for a Morse dash
+  char_spacing_time: 1.8   # Seconds open to register end of character
+  word_spacing_time: 3.5   # Seconds open to register end of word
+
+gestures:
+  min_tracking_confidence: 0.7
+  cross_hand_distance_threshold: 0.08  # Normalized distance between wrists
+  smoothing_factor: 0.35               # Low-pass filter for smooth flight motions (0.0 to 1.0)
+
+body:
+  follow_distance_factor: 0.15 # Target shoulder-width ratio (smaller = further)
+  follow_tolerance: 0.02
+  motion_threshold: 0.03       # Displacement limit to classify user as "moving"
+  motion_window_size: 10       # Frame history for averaging motion
+  dead_man_timeout: 5.0        # Seconds of missing pose before landing (Fallen-Pilot Failsafe)
+
+avoidance:
+  enabled: true
+  sensor_field_of_view: 90    # Degrees
+  safety_distance: 1.0        # Meters
+  reaction_gain: 1.5          # How hard it turns away from obstacles
+
+delivery:
+  safe_approach_distance: 0.20 # Shoulders width ratio representing safety zone
+  handoff_timeout: 5.0         # Wait time after hand landmarks leave payload zone
+  home_position: [0.0, 0.0, 1.2] # Default return local coordinates [x, y, z] (meters)

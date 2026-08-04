@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cognitive Entanglement - Advanced Dual-Phone Tele-Robotics Dashboard</title>
+    
+    <!-- Scripts & Frameworks -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 {
+            color: #3b82f6;
+            margin: 0;
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -0.05em;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        p {
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 1440px;
+        }
+        .panel {
+            background-color: #111827;
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .panel h3 {
+            margin-top: 0;
+            color: #f9fafb;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            align-self: flex-start;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 5px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* Setup Wizard CSS */
+        .wizard-panel {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            border: 1px solid #4338ca;
+            border-radius: 10px;
+            padding: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .wizard-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #a5b4fc;
+            font-weight: bold;
+        }
+        .wizard-prompt {
+            font-size: 13px;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 5px;
+        }
+        .wizard-steps {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+        .wizard-dot {
+            width: 24px;
+            height: 6px;
+            background-color: #334155;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+        .wizard-dot.active {
+            background-color: #818cf8;
+            box-shadow: 0 0 8px rgba(129, 140, 248, 0.6);
+        }
+        .wizard-dot.completed {
+            background-color: #34d399;
+        }
+        #video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        video {
+            display: none;
+        }
+        canvas#output_canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+        #simulator-panel {
+            width: 100%;
+            height: 260px;
+            background-color: #030712;
+            border-radius: 10px;
+            border: 1px dashed #374151;
+        }
+        /* Draw-to-Fly Canvas CSS */
+        .draw-panel {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+        canvas#draw_canvas {
+            width: 100%;
+            height: 140px;
+            background-color: #020617;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+            cursor: crosshair;
+        }
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        .telemetry-card {
+            background-color: #1f2937;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+        }
+        .telemetry-card div:first-child {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            letter-spacing: 0.1em;
+        }
+        .telemetry-card div:last-child {
+            font-size: 15px;
+            font-weight: 700;
+            color: #10b981;
+            margin-top: 3px;
+        }
+        .phone-modes {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .phone-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 12px;
+            background-color: #1f2937;
+            border: 2px solid #374151;
+            color: #9ca3af;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            text-align: center;
+        }
+        .phone-btn.active {
+            background-color: #10b981;
+            color: white;
+            border-color: #34d399;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+        .phone-btn.active.drone {
+            background-color: #3b82f6;
+            border-color: #60a5fa;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+        }
+        button.action-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .log-box {
+            width: 100%;
+            height: 100px;
+            background-color: #030712;
+            border-radius: 8px;
+            padding: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            overflow-y: auto;
+            border: 1px solid #1f2937;
+            box-sizing: border-box;
+            color: #34d399;
+        }
+        .status-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .status-badge.authorized {
+            background-color: #10b981;
+        }
+        /* Call Interface Overlay Styles */
+        .call-hud {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+        .call-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .call-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .call-btn.active {
+            background-color: #ef4444;
+        }
+        .call-pulse {
+            width: 10px;
+            height: 10px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .call-pulse.active {
+            background-color: #10b981;
+            animation: pulse 1.5s infinite;
+        }
+        #remote-video-feed {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            background: #000;
+            display: none;
+        }
+        #remote-video-feed.visible {
+            display: block;
+            margin-top: 10px;
+            border: 2px solid #3b82f6;
+        }
+        /* Grid selectors for Swarms & ActiveTrack */
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .selector-item {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            color: #9ca3af;
+            padding: 6px;
+            font-size: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .selector-item.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #60a5fa;
+        }
+        /* Keyboard Diagnostic Overlays */
+        .keyboard-hud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-size: 10px;
+            color: #9ca3af;
+            background-color: #111827;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+            border: 1px solid #1e293b;
+        }
+        .key-badge {
+            background: #1f2937;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #9ca3af;
+            font-weight: bold;
+            border: 1px solid #374151;
+            transition: all 0.1s;
+        }
+        .key-badge.pressed {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #60a5fa;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+        }
+        /* Mobile Tactile Directional Key Buttons */
+        .mobile-keypad-panel {
+            display: none; /* Shows on Touch Mode */
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 10px;
+            gap: 8px;
+        }
+        .keypad-row {
+            display: flex;
+            gap: 8px;
+        }
+        .keypad-btn {
+            width: 50px;
+            height: 50px;
+            background-color: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 8px;
+            color: #f3f4f6;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            touch-action: none;
+        }
+        .keypad-btn:active {
+            background-color: #3b82f6;
+            border-color: #60a5fa;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌌 COGNITIVE ENTANGLEMENT</h1>
+        <p>Tactile Phone Keys • Laptop Key Diagnostic HUD • WebRTC Swarm Controller</p>
+    </header>
+
+    <!-- Calibration Wizard Setup HUD -->
+    <div class="wizard-panel">
+        <div class="wizard-title" id="wizard-step-txt">SYSTEM CALIBRATION STATUS</div>
+        <div class="wizard-prompt" id="wizard-prompt-txt">Connecting to onboard AI engine...</div>
+        <div class="wizard-steps">
+            <div class="wizard-dot active" id="dot-welcome"></div>
+            <div class="wizard-dot" id="dot-face"></div>
+            <div class="wizard-dot" id="dot-voice"></div>
+            <div class="wizard-dot" id="dot-gesture"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 1. Sensory Interface -->
+        <div class="panel">
+            <h3>📷 Sensory Brain Module <span id="sec-badge" class="status-badge">Locked</span></h3>
+            
+            <div class="phone-modes">
+                <button class="phone-btn active" id="btn-mode-ai" onclick="setControlMode('AI')">👁️ AI Brain</button>
+                <button class="phone-btn" id="btn-mode-keyboard" onclick="setControlMode('KEYBOARD')">💻 Laptop Keys</button>
+                <button class="phone-btn" id="btn-mode-touch" onclick="setControlMode('TOUCH')">📱 Phone Keys</button>
+            </div>
+
+            <!-- FPV WebRTC Call Interface -->
+            <div class="call-hud">
+                <div class="call-controls">
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <div class="call-pulse" id="call-pulse-node"></div>
+                        <span id="call-status-txt" style="font-size:11px; color:#9ca3af; font-weight:bold;">Call Offline</span>
+                    </div>
+                    <button class="call-btn" id="btn-call" onclick="toggleFPVCall()">Place WebRTC Call</button>
+                </div>
+                <video id="remote-video-feed" autoplay playsinline controls></video>
+            </div>
+
+            <!-- Video Frame Overlay -->
+            <div id="video-container" style="margin-top: 10px;">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="output_canvas"></canvas>
+            </div>
+            
+            <div style="display: flex; gap: 5px; width: 100%;">
+                <button class="action-btn" id="btn-init">Start Local Camera</button>
+                <button class="action-btn" style="background: #a855f7;" id="btn-gps" onclick="toggleGPSTracking()">GPS Track Location</button>
+            </div>
+            
+            <!-- Laptop Key Diagnostic HUD -->
+            <div class="keyboard-hud" id="keyboard-hud-panel" style="display:none;">
+                <div style="font-weight:bold; width:100%; color:#a5b4fc; margin-bottom:5px; text-transform:uppercase; font-size:9px;">Laptop Key Diagnostic HUD</div>
+                <span class="key-badge" id="key-w">W (Fwd)</span>
+                <span class="key-badge" id="key-s">S (Bwd)</span>
+                <span class="key-badge" id="key-a">A (Left)</span>
+                <span class="key-badge" id="key-d">D (Right)</span> |
+                <span class="key-badge" id="key-arrowup">▲ (Climb)</span>
+                <span class="key-badge" id="key-arrowdown">▼ (Descend)</span>
+                <span class="key-badge" id="key-arrowleft">◀ (Yaw L)</span>
+                <span class="key-badge" id="key-arrowright">▶ (Yaw R)</span> |
+                <span class="key-badge" id="key-space">Space (Arm)</span>
+            </div>
+
+            <!-- Mobile Tactile Directional Key Buttons -->
+            <div class="mobile-keypad-panel" id="joysticks-panel">
+                <div style="font-weight:bold; color:#a5b4fc; margin-bottom:5px; text-transform:uppercase; font-size:10px;">Tactile Phone Keypad</div>
+                
+                <!-- Vertical & Horizontal Translations -->
+                <div class="keypad-row">
+                    <button class="keypad-btn" id="phone-key-climb" onmousedown="setPhoneKey('vz', 0.5)" onmouseup="clearPhoneKey('vz')" ontouchstart="setPhoneKey('vz', 0.5)" ontouchend="clearPhoneKey('vz')">┭</button>
+                    <button class="keypad-btn" id="phone-key-w" onmousedown="setPhoneKey('vx', 0.5)" onmouseup="clearPhoneKey('vx')" ontouchstart="setPhoneKey('vx', 0.5)" ontouchend="clearPhoneKey('vx')">▲</button>
+                    <button class="keypad-btn" id="phone-key-descend" onmousedown="setPhoneKey('vz', -0.5)" onmouseup="clearPhoneKey('vz')" ontouchstart="setPhoneKey('vz', -0.5)" ontouchend="clearPhoneKey('vz')">┮</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="keypad-btn" id="phone-key-a" onmousedown="setPhoneKey('vy', -0.5)" onmouseup="clearPhoneKey('vy')" ontouchstart="setPhoneKey('vy', -0.5)" ontouchend="clearPhoneKey('vy')">◀</button>
+                    <button class="keypad-btn" id="phone-key-s" onmousedown="setPhoneKey('vx', -0.5)" onmouseup="clearPhoneKey('vx')" ontouchstart="setPhoneKey('vx', -0.5)" ontouchend="clearPhoneKey('vx')">▼</button>
+                    <button class="keypad-btn" id="phone-key-d" onmousedown="setPhoneKey('vy', 0.5)" onmouseup="clearPhoneKey('vy')" ontouchstart="setPhoneKey('vy', 0.5)" ontouchend="clearPhoneKey('vy')">▶</button>
+                </div>
+                <div class="keypad-row">
+                    <button class="keypad-btn" id="phone-key-yawl" style="font-size:14px;" onmousedown="setPhoneKey('vyaw', -0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', -0.6)" ontouchend="clearPhoneKey('vyaw')">Turn L</button>
+                    <button class="keypad-btn" id="phone-key-yawr" style="font-size:14px;" onmousedown="setPhoneKey('vyaw', 0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', 0.6)" ontouchend="clearPhoneKey('vyaw')">Turn R</button>
+                </div>
+            </div>
+
+            <!-- Voice-Guided ActiveTrack Target Selector -->
+            <div style="width: 100%; margin-top: 15px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #a5b4fc; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">🎯 Onboard ActiveTrack Target</div>
+                <div class="selector-grid">
+                    <button class="selector-item active" id="track-none" onclick="setActiveTrackTarget('CANCEL')">None (Human)</button>
+                    <button class="selector-item" id="track-ball" onclick="setActiveTrackTarget('ball')">Ball</button>
+                    <button class="selector-item" id="track-backpack" onclick="setActiveTrackTarget('backpack')">Backpack</button>
+                    <button class="selector-item" id="track-dog" onclick="setActiveTrackTarget('dog')">Dog</button>
+                    <button class="selector-item" id="track-cat" onclick="setActiveTrackTarget('cat')">Cat</button>
+                    <button class="selector-item" id="track-bicycle" onclick="setActiveTrackTarget('bicycle')">Bicycle</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 3D Digital Swarm & Draw-to-Fly -->
+        <div class="panel">
+            <h3>✈️ Swarm Formation 3D Twin</h3>
+            <div id="simulator-panel"></div>
+
+            <!-- Swarm Formation Shifter Selector -->
+            <div style="width: 100%; margin-top: 10px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #10b981; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">🐝 Swarm Formation Shifter</div>
+                <div class="selector-grid">
+                    <button class="selector-item active" id="form-v" onclick="setSwarmFormation('V-SHAPE')">V-Shape</button>
+                    <button class="selector-item" id="form-line" onclick="setSwarmFormation('LINE')">Line Parallel</button>
+                    <button class="selector-item" id="form-orbit" onclick="setSwarmFormation('ORBIT')">Orbit Helix</button>
+                </div>
+            </div>
+
+            <!-- Draw-To-Fly curves panel -->
+            <div class="draw-panel" style="margin-top: 15px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: #a5b4fc; font-weight: bold; margin-bottom: 5px;">✍️ Draw-To-Fly Curve Path</div>
+                <canvas id="draw_canvas"></canvas>
+                <div style="display: flex; gap: 5px; width: 100%; margin-top: 5px;">
+                    <button class="action-btn" style="background: #3b82f6; margin-top: 0; padding: 6px;" onclick="executeDrawPath()">Execute Flight Path</button>
+                    <button class="action-btn" style="background: #4b5563; margin-top: 0; padding: 6px;" onclick="clearDrawPath()">Clear Canvas</button>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 5px; width: 100%; margin-top: 10px;">
+                <button class="action-btn" style="background: #10b981;" onclick="triggerAction('TAKEOFF')">Takeoff</button>
+                <button class="action-btn" style="background: #ef4444;" onclick="triggerAction('LAND')">Land</button>
+                <button class="action-btn" style="background: #f59e0b;" onclick="triggerAction('STOP')">Safety Stop</button>
+            </div>
+        </div>
+
+        <!-- 3. Metrics Matrix -->
+        <div class="panel">
+            <h3>📊 Telemetry Matrix</h3>
+            <div class="telemetry-grid">
+                <div class="telemetry-card">
+                    <div>System State</div>
+                    <div id="state-txt" style="color: #60a5fa;">IDLE</div>
+                </div>
+                <div class="telemetry-card">
+                    <div>Gesture / ASL Sign</div>
+                    <div id="gesture-txt" style="color: #10b981;">NONE</div>
+                </div>
+                <div class="telemetry-card">
+                    <div>Flight Speed scale</div>
+                    <div id="speed-scale-txt">1.0x (Normal)</div>
+                </div>
+                <div class="telemetry-card">
+                    <div>Drone Battery</div>
+                    <div id="battery-txt" style="color: #10b981;">100%</div>
+                </div>
+            </div>
+            
+            <h4>📋 System Intelligence Logs</h4>
+            <div class="log-box" id="log-box">
+                [SYSTEM]: Initialize local sensors or join call to establish remote pilot loops.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const webcam = document.getElementById('webcam');
+        const remoteFeed = document.getElementById('remote-video-feed');
+        const canvas = document.getElementById('output_canvas');
+        const ctx = canvas.getContext('2d');
+        const logBox = document.getElementById('log-box');
+
+        // --- Core 2-Phone Settings ---
+        let controlMode = "AI"; // AI, KEYBOARD, TOUCH
+        let phoneRole = "PILOT"; 
+        let peerConnection = null;
+        let localStream = null;
+        let callActive = false;
+        let lastFrameTimestamp = Date.now();
+        let failsafeTriggered = false;
+
+        const rtcConfig = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+
+        function setPhoneRole(role) {
+            phoneRole = role;
+            document.querySelectorAll('.phone-btn').forEach(btn => btn.classList.remove('active'));
+            const btnPilot = document.getElementById('btn-role-pilot');
+            const btnDrone = document.getElementById('btn-role-drone');
+
+            if (role === "PILOT") {
+                btnPilot.classList.add('active');
+                document.getElementById('video-container').style.display = "block";
+                remoteFeed.classList.remove('visible');
+                log("[ROLE]: Configured as Ground Pilot (Phone B). Ready to broadcast video call.");
+            } else if (role === "DRONE") {
+                btnDrone.classList.add('active', 'drone');
+                document.getElementById('video-container').style.display = "none";
+                remoteFeed.classList.add('visible'); 
+                log("[ROLE]: Configured as Drone Brain (Phone A). MediaPipe listening on remote stream feed!");
+            }
+        }
+
+        // --- Branded Role & Controller Toggles ---
+        function setControlMode(mode) {
+            controlMode = mode;
+            document.querySelectorAll('.phone-modes button').forEach(btn => btn.classList.remove('active'));
+            
+            if (mode === "AI") {
+                document.getElementById('btn-mode-ai').classList.add('active');
+                document.getElementById('video-container').style.display = "block";
+                document.getElementById('btn-init').style.display = "block";
+                document.getElementById('keyboard-hud-panel').style.display = "none";
+                document.getElementById('joysticks-panel').style.display = "none";
+                log("[MODE]: Switched to Cognitive AI (Mute ASL gestures + Eye-Morse active).");
+            } else if (mode === "KEYBOARD") {
+                document.getElementById('btn-mode-keyboard').classList.add('active');
+                document.getElementById('video-container').style.display = "none";
+                document.getElementById('btn-init').style.display = "none";
+                document.getElementById('keyboard-hud-panel').style.display = "flex";
+                document.getElementById('joysticks-panel').style.display = "none";
+                log("[MODE]: Switched to Laptop Key override (WASD + Arrows).");
+            } else if (mode === "TOUCH") {
+                document.getElementById('btn-mode-touch').classList.add('active');
+                document.getElementById('video-container').style.display = "none";
+                document.getElementById('btn-init').style.display = "none";
+                document.getElementById('keyboard-hud-panel').style.display = "none";
+                document.getElementById('joysticks-panel').style.display = "flex";
+                log("[MODE]: Switched to Phone Tactile Key Button override.");
+            }
+        }
+
+        // --- Dynamic Formations & ActiveTrack selectors ---
+        let selectedFormation = "V-SHAPE";
+        let selectedTrackTarget = "CANCEL";
+
+        function setSwarmFormation(formation) {
+            selectedFormation = formation;
+            document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
+                if (btn.id.startsWith('form-')) btn.classList.remove('active');
+            });
+            const btnId = `form-${formation.replace('-','').toLowerCase()}`;
+            const btn = document.getElementById(btnId);
+            if (btn) btn.classList.add('active');
+            log(`[SWARM]: Transitioning swarm formation to: ${formation}`);
+            socket.emit('telemetry_update', { formation_cmd: formation });
+        }
+
+        function setActiveTrackTarget(targetClass) {
+            selectedTrackTarget = targetClass;
+            document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
+                if (btn.id.startsWith('track-')) btn.classList.remove('active');
+            });
+            const btnId = `track-${targetClass.toLowerCase()}`;
+            const btn = document.getElementById(btnId);
+            if (btn) btn.classList.add('active');
+            
+            if (targetClass === "CANCEL") {
+                log("[ACTIVETRACK]: Resuming default human skeleton following.");
+            } else {
+                log(`[ACTIVETRACK]: Locking onboard target class to: '${targetClass.toUpperCase()}'`);
+            }
+            socket.emit('telemetry_update', { tracking_target_cmd: targetClass });
+        }
+
+        // --- Draw-to-Fly Canvas Operations ---
+        const dCanvas = document.getElementById('draw_canvas');
+        const dCtx = dCanvas.getContext('2d');
+        let isDrawing = false;
+        let flightPathPoints = [];
+
+        dCanvas.width = dCanvas.clientWidth;
+        dCanvas.height = dCanvas.clientHeight;
+
+        dCtx.strokeStyle = '#818cf8';
+        dCtx.lineWidth = 3;
+        dCtx.lineCap = 'round';
+        dCtx.shadowBlur = 10;
+        dCtx.shadowColor = '#818cf8';
+
+        function startDrawing(e) {
+            isDrawing = true;
+            dCtx.beginPath();
+            const rect = dCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
+            const y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
+            dCtx.moveTo(x, y);
+            flightPathPoints = [];
+            recordPoint(x, y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = dCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
+            const y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
+            dCtx.lineTo(x, y);
+            dCtx.stroke();
+            recordPoint(x, y);
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function recordPoint(canvasX, canvasY) {
+            const physicalX = ((canvasX / dCanvas.width) - 0.5) * 10.0;
+            const physicalY = (0.5 - (canvasY / dCanvas.height)) * 10.0; 
+            flightPathPoints.push({ x: physicalX, y: physicalY, z: 1.5 }); 
+        }
+
+        function clearDrawPath() {
+            dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
+            flightPathPoints = [];
+            log("[DRAW]: Path canvas cleared.");
+        }
+
+        function executeDrawPath() {
+            if (flightPathPoints.length === 0) {
+                log("[DRAW ERR]: No path detected. Draw a line first!");
+                return;
+            }
+            log(`[DRAW]: Transmitting drawn route of ${flightPathPoints.length} points to Drone Brain.`);
+            socket.emit('telemetry_update', { draw_coords: flightPathPoints });
+        }
+
+        dCanvas.addEventListener('mousedown', startDrawing);
+        dCanvas.addEventListener('mousemove', draw);
+        dCanvas.addEventListener('mouseup', stopDrawing);
+        dCanvas.addEventListener('touchstart', startDrawing);
+        dCanvas.addEventListener('touchmove', draw);
+        dCanvas.addEventListener('touchend', stopDrawing);
+
+
+        // --- WebRTC signaling over Socket.io ---
+        socket.on('webrtc_signaling', async (data) => {
+            if (!callActive || !peerConnection) return;
+
+            try {
+                if (data.sdp) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                    if (data.sdp.type === 'offer') {
+                        const answer = await peerConnection.createAnswer();
+                        await peerConnection.setLocalDescription(answer);
+                        socket.emit('webrtc_signaling', { sdp: peerConnection.localDescription });
+                    }
+                } else if (data.ice) {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.ice));
+                }
+            } catch (err) {
+                log(`[WebRTC ERR]: Signaling match failure: ${err.message}`);
+            }
+        });
+
+        async function toggleFPVCall() {
+            const callBtn = document.getElementById('btn-call');
+            const callPulse = document.getElementById('call-pulse-node');
+            const callStatus = document.getElementById('call-status-txt');
+
+            if (!callActive) {
+                callActive = true;
+                callBtn.innerText = "End Call";
+                callBtn.className = "call-btn active";
+                callPulse.classList.add('active');
+                callStatus.innerText = "Connecting Call...";
+
+                peerConnection = new RTCPeerConnection(rtcConfig);
+                
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        socket.emit('webrtc_signaling', { ice: event.candidate });
+                    }
+                };
+
+                peerConnection.ontrack = (event) => {
+                    remoteFeed.srcObject = event.streams[0];
+                    callStatus.innerText = "Call Live: Processing Commands Onboard";
+                    log("[CALL]: WebRTC video stream linked. Processing feed directly.");
+                    
+                    if (phoneRole === "DRONE") {
+                        startOnboardProcessingLoop();
+                    }
+                };
+
+                if (phoneRole === "PILOT") {
+                    try {
+                        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+                        
+                        const offer = await peerConnection.createOffer();
+                        await peerConnection.setLocalDescription(offer);
+                        socket.emit('webrtc_signaling', { sdp: peerConnection.localDescription });
+                        callStatus.innerText = "Streaming to Drone Brain...";
+                        log("[CALL]: Outgoing WebRTC stream initiated.");
+                    } catch (err) {
+                        log(`[CALL ERR]: Failed to acquire camera: ${err.message}`);
+                    }
+                }
+            } else {
+                cleanupCall();
+                callBtn.innerText = "Place WebRTC Call";
+                callBtn.className = "call-btn";
+                callPulse.classList.remove('active');
+                callStatus.innerText = "Call Offline";
+                log("[CALL]: WebRTC connection terminated.");
+            }
+        }
+
+        function cleanupCall() {
+            callActive = false;
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            remoteFeed.srcObject = null;
+        }
+
+        // --- Connection Monitoring Failsafe ---
+        setInterval(() => {
+            if (callActive && phoneRole === "DRONE") {
+                const timeSinceLastFrame = Date.now() - lastFrameTimestamp;
+                const failsafeCard = document.getElementById('failsafe-txt');
+                
+                if (timeSinceLastFrame > 1500 && !failsafeTriggered) {
+                    failsafeTriggered = true;
+                    failsafeCard.innerText = "TRIGGERED (LOS)";
+                    failsafeCard.style.color = "#ef4444";
+                    log("[WARNING]: Connection freeze detected! Onboard failsafe protocol triggered. Drone hovering safely.");
+                    socket.emit('telemetry_update', { gesture: "CROSS_HANDS", voice_cmd: "STOP" });
+                }
+            }
+        }, 500);
+
+        function registerFrameActivity() {
+            lastFrameTimestamp = Date.now();
+            if (failsafeTriggered) {
+                failsafeTriggered = false;
+                const failsafeCard = document.getElementById('failsafe-txt');
+                failsafeCard.innerText = "SECURE";
+                failsafeCard.style.color = "#10b981";
+                log("[FPV]: Call stream recovered. Overcoming failsafe.");
+            }
+        }
+
+        function startOnboardProcessingLoop() {
+            const processFrame = async () => {
+                if (!callActive || phoneRole !== "DRONE") return;
+                
+                if (remoteFeed.readyState >= 2) { 
+                    registerFrameActivity();
+                    await hands.send({ image: remoteFeed });
+                    await faceMesh.send({ image: remoteFeed });
+                }
+                requestAnimationFrame(processFrame);
+            };
+            requestAnimationFrame(processFrame);
+        }
+
+        // --- ThreeJS 3D Swarm Simulator Setup ---
+        const simPanel = document.getElementById('simulator-panel');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x030712);
+        const camera = new THREE.PerspectiveCamera(60, simPanel.clientWidth / 260, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(simPanel.clientWidth, 260);
+        simPanel.appendChild(renderer.domElement);
+
+        const gridHelper = new THREE.GridHelper(30, 30, 0x3b82f6, 0x1f2937);
+        scene.add(gridHelper);
+
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(0, 10, 10);
+        scene.add(light);
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        const createDroneMesh = (color) => {
+            const droneGroup = new THREE.Group();
+            const bodyGeo = new THREE.BoxGeometry(0.5, 0.1, 0.5);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            droneGroup.add(body);
+
+            const rotorGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.02, 6);
+            const rotorMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af });
+            const offsets = [[-0.25, 0.06, -0.25], [0.25, 0.06, -0.25], [-0.25, 0.06, 0.25], [0.25, 0.06, 0.25]];
+            droneGroup.rotors = [];
+            offsets.forEach(offset => {
+                const rotor = new THREE.Mesh(rotorGeo, rotorMat);
+                rotor.position.set(...offset);
+                droneGroup.add(rotor);
+                droneGroup.rotors.push(rotor);
+            });
+            return droneGroup;
+        };
+
+        const leaderDrone = createDroneMesh(0x3b82f6);
+        scene.add(leaderDrone);
+        const follower1 = createDroneMesh(0x10b981);
+        const follower2 = createDroneMesh(0x10b981);
+        scene.add(follower1);
+        scene.add(follower2);
+
+        camera.position.set(0, 5, 8);
+        camera.lookAt(0, 0, 0);
+
+        let isFlying = false;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (isFlying) {
+                leaderDrone.rotors.forEach(r => r.rotation.y += 0.4);
+                follower1.rotors.forEach(r => r.rotation.y += 0.4);
+                follower2.rotors.forEach(r => r.rotation.y += 0.4);
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function triggerAction(action) {
+            socket.emit('telemetry_update', { voice_cmd: action });
+            log(`[CONTROL]: Manual action dispatched: ${action}`);
+        }
+
+        // --- Laptop Keys Overrides with Diagnostic HUD ---
+        const keysPressed = {};
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            keysPressed[key] = true;
+            
+            // Light up virtual key badge on the dashboard!
+            const badge = document.getElementById(`key-${key}`);
+            if (badge) badge.classList.add('pressed');
+
+            if (controlMode !== "KEYBOARD") return;
+            if (e.key === " ") triggerAction("TAKEOFF");
+            if (e.key === "Escape") triggerAction("LAND");
+            if (e.key === "Shift") triggerAction("STOP");
+        });
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            keysPressed[key] = false;
+            
+            // Fade virtual key badge
+            const badge = document.getElementById(`key-${key}`);
+            if (badge) badge.classList.remove('pressed');
+        });
+
+        function updateKeyboardVectors() {
+            if (controlMode !== "KEYBOARD") {
+                keyboardVectors = { vx: 0.0, vy: 0.0, vz: 0.0, vyaw: 0.0 };
+                return;
+            }
+            let vx = 0.0, vy = 0.0, vz = 0.0, vyaw = 0.0;
+            
+            if (keysPressed['w']) vx = 0.5;
+            if (keysPressed['s']) vx = -0.5;
+            if (keysPressed['a']) vy = -0.5;
+            if (keysPressed['d']) vy = 0.5;
+
+            if (keysPressed['arrowup']) vz = 0.4;
+            if (keysPressed['arrowdown']) vz = -0.4;
+            if (keysPressed['arrowleft']) vyaw = -0.5;
+            if (keysPressed['arrowright']) vyaw = 0.5;
+
+            keyboardVectors = { vx, vy, vz, vyaw };
+        }
+
+        // --- Mobile Tactile Key Buttons Overrides ---
+        let mobileKeyVectors = { vx: 0.0, vy: 0.0, vz: 0.0, vyaw: 0.0 };
+        function setPhoneKey(axis, val) {
+            if (controlMode !== "TOUCH") return;
+            mobileKeyVectors[axis] = val;
+        }
+        function clearPhoneKey(axis) {
+            mobileKeyVectors[axis] = 0.0;
+        }
+
+        // --- Geolocation GPS tracking ---
+        let gpsWatchId = null;
+        let originalGPSPosition = null;
+
+        function toggleGPSTracking() {
+            const gpsBtn = document.getElementById('btn-gps');
+            if (gpsWatchId === null) {
+                if ("geolocation" in navigator) {
+                    gpsWatchId = navigator.geolocation.watchPosition(
+                        (position) => {
+                            if (!originalGPSPosition) {
+                                originalGPSPosition = position.coords;
+                            }
+                            const dx = (position.coords.longitude - originalGPSPosition.longitude) * 111320 * Math.cos(position.coords.latitude * Math.PI / 180);
+                            const dy = (position.coords.latitude - originalGPSPosition.latitude) * 110540;
+                            
+                            log(`[GPS]: update lat=${position.coords.latitude.toFixed(5)}, lon=${position.coords.longitude.toFixed(5)}. Rel dx=${dx.toFixed(2)}m, dy=${dy.toFixed(2)}m`);
+                            
+                            socket.emit('telemetry_update', {
+                                gps_data: { dx: dx, dy: dy, lat: position.coords.latitude, lon: position.coords.longitude }
+                            });
+                        },
+                        (error) => log(`[GPS ERR]: ${error.message}`),
+                        { enableHighAccuracy: true, maximumAge: 1000 }
+                    );
+                    gpsBtn.innerText = "Stop GPS Track";
+                    gpsBtn.style.background = "#ef4444";
+                    log("[GPS]: Geolocation broadcast engaged.");
+                } else {
+                    log("[GPS ERR]: Geolocation unsupported.");
+                }
+            } else {
+                navigator.geolocation.clearWatch(gpsWatchId);
+                gpsWatchId = null;
+                originalGPSPosition = null;
+                gpsBtn.innerText = "GPS Track Location";
+                gpsBtn.style.background = "#a855f7";
+                log("[GPS]: Geolocation broadcast suspended.");
+            }
+        }
+
+        // --- Local Speech Capturing & Tuning ---
+        let lastVoiceCommand = "NONE";
+        let activeSpeedScale = 1.0;
+        let activeHeightOffset = 0.0;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const rec = new SpeechRecognition();
+            rec.continuous = true;
+            rec.lang = 'en-US';
+            rec.onresult = function(event) {
+                const text = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                log(`Local Speech: "${text}"`);
+                
+                if (text.includes("authorize drone") && activeWizardStep === "VOICE_SCAN") {
+                    lastVoiceCommand = "SECURE_AUTH";
+                    return;
+                }
+
+                if (text.includes("speed fast") || text.includes("accelerate")) {
+                    activeSpeedScale = 1.8;
+                    document.getElementById('speed-scale-txt').innerText = "1.8x (Fast)";
+                } else if (text.includes("speed slow") || text.includes("slow down")) {
+                    activeSpeedScale = 0.5;
+                    document.getElementById('speed-scale-txt').innerText = "0.5x (Slow)";
+                } else if (text.includes("speed normal") || text.includes("normalize")) {
+                    activeSpeedScale = 1.0;
+                    document.getElementById('speed-scale-txt').innerText = "1.0x (Normal)";
+                }
+
+                // Voice-guided ActiveTrack triggers
+                if (text.includes("track person")) setActiveTrackTarget("CANCEL");
+                else if (text.includes("track ball")) setActiveTrackTarget("ball");
+                else if (text.includes("track backpack")) setActiveTrackTarget("backpack");
+                else if (text.includes("track dog")) setActiveTrackTarget("dog");
+                else if (text.includes("track cat")) setActiveTrackTarget("cat");
+                else if (text.includes("track bicycle")) setActiveTrackTarget("bicycle");
+                else if (text.includes("cancel tracking")) setActiveTrackTarget("CANCEL");
+
+                // Voice-guided formation shift triggers
+                if (text.includes("formation line")) setSwarmFormation("LINE");
+                else if (text.includes("formation orbit") || text.includes("formation circle")) setSwarmFormation("ORBIT");
+                else if (text.includes("formation v shape") || text.includes("formation normal")) setSwarmFormation("V-SHAPE");
+
+                if (text.includes("take off") || text.includes("fly")) lastVoiceCommand = "TAKEOFF";
+                else if (text.includes("land")) lastVoiceCommand = "LAND";
+                else if (text.includes("stop") || text.includes("hover") || text.includes("panic")) lastVoiceCommand = "STOP";
+                else if (text.includes("follow")) lastVoiceCommand = "START_FOLLOW";
+                else if (text.includes("complete") || text.includes("delivered")) lastVoiceCommand = "HANDOFF_DONE";
+                
+                // Tricks triggers
+                else if (text.includes("front flip")) lastVoiceCommand = "FRONT_FLIP";
+                else if (text.includes("back flip")) lastVoiceCommand = "BACK_FLIP";
+                else if (text.includes("flip left")) lastVoiceCommand = "LEFT_FLIP";
+                else if (text.includes("flip right")) lastVoiceCommand = "RIGHT_FLIP";
+                else if (text.includes("tornado")) lastVoiceCommand = "TORNADO";
+                else if (text.includes("dance") || text.includes("wobble")) lastVoiceCommand = "DANCE";
+                else if (text.includes("glide")) lastVoiceCommand = "GLIDE";
+                else if (text.includes("orbit carousel")) lastVoiceCommand = "ORBIT";
+                else if (text.includes("selfie")) lastVoiceCommand = "SELFIE";
+                else if (text.includes("find") || text.includes("chirp")) lastVoiceCommand = "FIND";
+            };
+            rec.start();
+        }
+
+        // --- MediaPipe Framework Initializations ---
+        let detectedGesture = "NONE";
+        let eyeLandmarksData = null;
+
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+        faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.6 });
+        faceMesh.onResults((results) => {
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                eyeLandmarksData = results.multiFaceLandmarks[0];
+            }
+        });
+
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+        hands.setOptions({ maxNumHands: 2, minDetectionConfidence: 0.7 });
+        
+        hands.onResults((results) => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (phoneRole === "PILOT") {
+                ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            }
+            
+            detectedGesture = "NONE";
+            if (results.multiHandLandmarks) {
+                if (phoneRole === "PILOT") {
+                    for (const landmarks of results.multiHandLandmarks) {
+                        for (const landmark of landmarks) {
+                            ctx.fillStyle = "#3b82f6";
+                            ctx.beginPath();
+                            ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 2.5, 0, 2 * Math.PI);
+                            ctx.fill();
+                        }
+                    }
+                }
+
+                const numHands = results.multiHandLandmarks.length;
+                if (numHands === 2) {
+                    const h1 = results.multiHandLandmarks[0][0];
+                    const h2 = results.multiHandLandmarks[1][0];
+                    const dist = Math.sqrt(Math.pow(h1.x - h2.x, 2) + Math.pow(h1.y - h2.y, 2));
+                    if (dist < 0.1) detectedGesture = "CROSS_HANDS";
+                }
+
+                if (numHands === 1) {
+                    const lms = results.multiHandLandmarks[0];
+                    let f = [];
+                    if (lms[4].x < lms[3].x) f.push(1); else f.push(0);
+                    for (let tip of [8, 12, 16, 20]) {
+                        if (lms[tip].y < lms[tip-2].y) f.push(1); else f.push(0);
+                    }
+
+                    // Map Mute ASL Sign Language Gestures
+                    if (f[0] === 1 && f[1] === 1 && f[2] === 0 && f[3] === 0 && f[4] === 1) {
+                        detectedGesture = "ASL_ILY"; 
+                        document.getElementById('gesture-txt').innerText = "ASL: I-LOVE-YOU";
+                    } else if (f[0] === 0 && f[1] === 1 && f[2] === 1 && f[3] === 0 && f[4] === 0) {
+                        detectedGesture = "ASL_PEACE"; 
+                        document.getElementById('gesture-txt').innerText = "ASL: PEACE/V";
+                    } else if (f[0] === 1 && f[1] === 0 && f[2] === 0 && f[3] === 0 && f[4] === 1) {
+                        detectedGesture = "ASL_Y"; 
+                        document.getElementById('gesture-txt').innerText = "ASL: SHAKA/Y";
+                    } else if (f[0] === 1 && f[1] === 0 && f[2] === 0 && f[3] === 0 && f[4] === 0) {
+                        detectedGesture = "ASL_THUMBS_UP"; 
+                        document.getElementById('gesture-txt').innerText = "ASL: THUMBS-UP";
+                    } else if (f[0] === 0 && f[1] === 0 && f[2] === 1 && f[3] === 1 && f[4] === 1) {
+                        detectedGesture = "ASL_OK"; 
+                        document.getElementById('gesture-txt').innerText = "ASL: OK";
+                    } else if (f[0] === 1 && f[1] === 1 && f[2] === 1 && f[3] === 1 && f[4] === 1) {
+                        detectedGesture = "ASL_WAIT";
+                        document.getElementById('gesture-txt').innerText = "ASL: WAIT/HOLD";
+                    } else if (f.reduce((a,b)=>a+b, 0) === 5) {
+                        detectedGesture = "OPEN_PALM";
+                        document.getElementById('gesture-txt').innerText = "OPEN PALM";
+                    } else if (f.reduce((a,b)=>a+b, 0) === 0) {
+                        detectedGesture = "FIST";
+                        document.getElementById('gesture-txt').innerText = "FIST";
+                    }
+                }
+            }
+        });
+
+        // Send telemetry updates
+        setInterval(() => {
+            updateKeyboardVectors();
+            
+            let activeVectors = { vx: 0, vy: 0, vz: 0, vyaw: 0 };
+            let activeGesture = "NONE";
+            let activeVoice = "NONE";
+
+            if (controlMode === "AI") {
+                activeGesture = detectedGesture;
+                activeVoice = lastVoiceCommand;
+            } else if (controlMode === "KEYBOARD") {
+                activeVectors = keyboardVectors;
+                activeVoice = manualActionTrigger;
+            } else if (controlMode === "TOUCH") {
+                activeVectors = mobileKeyVectors;
+                activeVoice = manualActionTrigger;
+            }
+
+            if (socket.connected && (phoneRole === "PILOT" || (phoneRole === "DRONE" && callActive))) {
+                socket.emit('telemetry_update', {
+                    gesture: activeGesture,
+                    morse_cmd: "NONE",
+                    voice_cmd: activeVoice,
+                    body_state: (activeVectors.vx !== 0 || activeVectors.vy !== 0 || activeVectors.vz !== 0 || activeVectors.vyaw !== 0) ? "MOVING" : "STOPPED",
+                    body_vectors: activeVectors,
+                    face_landmarks: (controlMode === "AI") ? eyeLandmarksData : null,
+                    voice_speed_scale: activeSpeedScale,
+                    voice_height_offset: activeHeightOffset,
+                    formation_cmd: selectedFormation,
+                    tracking_target_cmd: selectedTrackTarget
+                });
+                
+                lastVoiceCommand = "NONE";
+                manualActionTrigger = "NONE";
+            }
+        }, 100);
+
+        let activeWizardStep = "WELCOME";
+
+        socket.on('drone_telemetry', (data) => {
+            const secBadge = document.getElementById('sec-badge');
+            if (data.security_authorized) {
+                secBadge.innerText = "Authorized";
+                secBadge.className = "status-badge authorized";
+            } else {
+                secBadge.innerText = "Locked";
+                secBadge.className = "status-badge";
+            }
+            
+            // --- Interactive Setup Wizard Updates ---
+            if (data.wizard) {
+                activeWizardStep = data.wizard.step;
+                document.getElementById('wizard-prompt-txt').innerText = data.wizard.instruction;
+                document.getElementById('wizard-step-txt').innerText = `CALIBRATION STEP: ${activeWizardStep}`;
+
+                document.querySelectorAll('.wizard-dot').forEach(d => d.className = "wizard-dot");
+                if (activeWizardStep === "WELCOME") {
+                    document.getElementById('dot-welcome').className = "wizard-dot active";
+                } else if (activeWizardStep === "FACE_SCAN") {
+                    document.getElementById('dot-welcome').className = "wizard-dot completed";
+                    document.getElementById('dot-face').className = "wizard-dot active";
+                } else if (activeWizardStep === "VOICE_SCAN") {
+                    document.getElementById('dot-welcome').className = "wizard-dot completed";
+                    document.getElementById('dot-face').className = "wizard-dot completed";
+                    document.getElementById('dot-voice').className = "wizard-dot active";
+                } else if (activeWizardStep === "GESTURE_CHECK") {
+                    document.getElementById('dot-welcome').className = "wizard-dot completed";
+                    document.getElementById('dot-face').className = "wizard-dot completed";
+                    document.getElementById('dot-voice').className = "wizard-dot completed";
+                    document.getElementById('dot-gesture').className = "wizard-dot active";
+                } else if (activeWizardStep === "READY") {
+                    document.getElementById('dot-welcome').className = "wizard-dot completed";
+                    document.getElementById('dot-face').className = "wizard-dot completed";
+                    document.getElementById('dot-voice').className = "wizard-dot completed";
+                    document.getElementById('dot-gesture').className = "wizard-dot completed";
+                    if (window.speechSynthesis) {
+                        const welcomeUtterance = new SpeechSynthesisUtterance("Calibration Complete! Ready to fly!");
+                        window.speechSynthesis.speak(welcomeUtterance);
+                    }
+                }
+            }
+
+            // Sync selectors dynamically from server updates
+            if (data.active_formation && data.active_formation !== selectedFormation) {
+                selectedFormation = data.active_formation;
+                document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
+                    if (btn.id.startsWith('form-')) btn.classList.remove('active');
+                });
+                const btnId = `form-${selectedFormation.replace('-','').toLowerCase()}`;
+                const btn = document.getElementById(btnId);
+                if (btn) btn.classList.add('active');
+            }
+            if (data.tracking_target && data.tracking_target !== selectedTrackTarget) {
+                selectedTrackTarget = data.tracking_target;
+                document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
+                    if (btn.id.startsWith('track-')) btn.classList.remove('active');
+                });
+                const btnId = `track-${selectedTrackTarget.toLowerCase()}`;
+                const btn = document.getElementById(btnId);
+                if (btn) btn.classList.add('active');
+            }
+
+            document.getElementById('state-txt').innerText = data.current_state;
+            
+            const leader = data.leader;
+            isFlying = leader.is_flying;
+            
+            // Sync battery meter
+            const bTxt = document.getElementById('battery-txt');
+            bTxt.innerText = `${leader.battery}%`;
+            if (leader.battery <= 20) {
+                bTxt.style.color = "#ef4444";
+                bTxt.style.fontWeight = "bold";
+            } else {
+                bTxt.style.color = "#10b981";
+            }
+
+            leaderDrone.position.set(leader.position.x * 2.0, leader.position.z * 1.5, -leader.position.y * 2.0);
+            leaderDrone.rotation.y = leader.yaw;
+
+            const follower1Data = data.swarm[2];
+            const follower2Data = data.swarm[3];
+            
+            if (follower1Data) {
+                follower1.position.set(follower1Data.position.x * 2.0, follower1Data.position.z * 1.5, -follower1Data.position.y * 2.0);
+                follower1.rotation.y = follower1Data.yaw;
+            }
+            if (follower2Data) {
+                follower2.position.set(follower2Data.position.x * 2.0, follower2Data.position.z * 1.5, -follower2Data.position.y * 2.0);
+                follower2.rotation.y = follower2Data.yaw;
+            }
+        });
+
+        document.getElementById('btn-init').addEventListener('click', () => {
+            const cameraHelper = new Camera(webcam, {
+                onFrame: async () => {
+                    if (phoneRole === "PILOT") {
+                        await hands.send({ image: webcam });
+                        await faceMesh.send({ image: webcam });
+                    }
+                },
+                width: 640,
+                height: 480
+            });
+            cameraHelper.start();
+            log("[SENSORS]: Local pilot webcam feed initialized.");
+        });
+
+        function log(msg) {
+            logBox.innerHTML += `<br>[SYS]: ${msg}`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>

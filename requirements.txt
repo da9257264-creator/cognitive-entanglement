@@ -1,0 +1,11 @@
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+numpy>=1.24.0
+PyYAML>=6.0
+SpeechRecognition>=3.10.0
+djitellopy>=2.5.0
+pymavlink>=2.4.37
+Flask>=2.3.2
+Flask-SocketIO>=5.3.4
+gTTS>=2.3.2
+pyaudio>=0.2.13
