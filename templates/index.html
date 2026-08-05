@@ -14,363 +14,633 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <style>
+        :root {
+            --bg-deep: #060913;
+            --panel-bg: rgba(13, 20, 38, 0.65);
+            --panel-border: rgba(0, 180, 216, 0.25);
+            --panel-glow: rgba(0, 180, 216, 0.1);
+            --text-high: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-blue: #00b4d8;
+            --accent-teal: #00f5d4;
+            --accent-orange: #ff9e00;
+            --accent-red: #ff0054;
+            --font-mono: 'Fira Code', 'Courier New', monospace;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #03050a;
-            color: #f3f4f6;
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 180, 216, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 245, 212, 0.06) 0%, transparent 40%),
+                linear-gradient(rgba(13, 20, 38, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(13, 20, 38, 0.4) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: var(--text-high);
             margin: 0;
-            padding: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 15px;
             overflow-x: hidden;
             touch-action: manipulation;
         }
+
         header {
-            text-align: center;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        h1 {
-            color: #00f0ff;
-            margin: 0;
-            font-weight: 800;
-            font-size: 26px;
-            letter-spacing: 0.05em;
-            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-        }
-        p {
-            color: #64748b;
-            font-size: 11px;
-            margin-top: 3px;
-            letter-spacing: 0.1em;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 15px;
-            width: 100%;
-            max-width: 1440px;
-        }
-        .panel {
-            background: linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
-            border-radius: 14px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border: 1px solid #1f2937;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid var(--panel-border);
+            padding-bottom: 12px;
             position: relative;
         }
-        .panel h3 {
-            margin-top: 0;
-            color: #f9fafb;
-            font-size: 13px;
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-teal), var(--accent-blue));
+            box-shadow: 0 0 10px var(--accent-teal);
+        }
+
+        .header-title-box h1 {
+            color: var(--accent-blue);
+            margin: 0;
+            font-weight: 900;
+            font-size: 24px;
             letter-spacing: 0.1em;
-            align-self: flex-start;
-            border-bottom: 2px solid #00f0ff;
-            padding-bottom: 5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(0, 180, 216, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title-box p {
+            color: var(--text-muted);
+            font-size: 10px;
+            margin: 3px 0 0 0;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+        }
+
+        .system-time-box {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--accent-teal);
+            text-shadow: 0 0 5px rgba(0, 245, 212, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        /* Setup Wizard CSS */
+        .wizard-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 15px var(--panel-glow);
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .wizard-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .wizard-title {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent-teal);
+            font-weight: bold;
+        }
+
+        .wizard-prompt {
+            font-size: 14px;
+            color: var(--text-high);
+            font-weight: bold;
+            font-family: var(--font-mono);
+        }
+
+        .wizard-steps {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .wizard-dot {
+            width: 35px;
+            height: 8px;
+            background-color: rgba(148, 163, 184, 0.2);
+            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .wizard-dot.active {
+            background-color: var(--accent-blue);
+            box-shadow: 0 0 12px var(--accent-blue);
+            width: 50px;
+        }
+
+        .wizard-dot.completed {
+            background-color: var(--accent-teal);
+            box-shadow: 0 0 12px var(--accent-teal);
+        }
+
+        /* Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .panel-column-left {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-column-center {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-column-right {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media (max-width: 1200px) {
+            .panel-column-left, .panel-column-center, .panel-column-right {
+                grid-column: span 12;
+            }
+        }
+
+        /* Frosted Glassmorphic Cyber-Panels */
+        .cyber-panel {
+            background: var(--panel-bg);
+            border-radius: 14px;
+            border: 1px solid var(--panel-border);
+            padding: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 15px var(--panel-glow);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .cyber-panel:hover {
+            border-color: rgba(0, 180, 216, 0.5);
+        }
+
+        .cyber-panel h3 {
+            margin: 0;
+            color: var(--text-high);
+            font-size: 13px;
+            letter-spacing: 0.15em;
+            border-bottom: 1px solid rgba(0, 180, 216, 0.2);
+            padding-bottom: 8px;
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             text-transform: uppercase;
+            font-family: var(--font-mono);
+            font-weight: 800;
         }
-        /* Setup Wizard CSS */
-        .wizard-panel {
-            background: linear-gradient(135deg, #1e1b4b 0%, #03050a 100%);
-            border: 1px solid #3b82f6;
-            border-radius: 10px;
-            padding: 12px;
-            width: 100%;
-            max-width: 1440px;
-            box-sizing: border-box;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 0 15px rgba(59, 130, 248, 0.3);
+
+        .cyber-panel h3::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--accent-blue);
         }
-        .wizard-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: #3b82f6;
-            font-weight: bold;
-        }
-        .wizard-prompt {
-            font-size: 13px;
-            color: #fff;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 5px;
-            font-family: monospace;
-        }
-        .wizard-steps {
-            display: flex;
-            gap: 5px;
-            margin-top: 8px;
-            width: 100%;
-            justify-content: center;
-        }
-        .wizard-dot {
-            width: 24px;
-            height: 6px;
-            background-color: #1e293b;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-        .wizard-dot.active {
-            background-color: #3b82f6;
-            box-shadow: 0 0 8px rgba(129, 140, 248, 0.6);
-        }
-        .wizard-dot.completed {
-            background-color: #00f0ff;
-        }
-        /* Video and Camera Feed Display */
+
+        /* Sensory Brain Module Viewport */
         #video-container {
             position: relative;
             width: 100%;
             aspect-ratio: 4/3;
-            background-color: #020408;
+            background-color: #02030a;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #1f2937;
+            border: 1px solid var(--panel-border);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
         }
-        /* Crucial: WebRTC Remote Video Call is drawn onto this visible canvas! */
+
         canvas#output_canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            transform: scaleX(-1); /* Mirror feedback for pilot */
+            transform: scaleX(-1); 
+            z-index: 2;
         }
+
         video {
-            display: none; /* Processed in background, rendered beautifully on canvas! */
+            display: none; 
         }
+
+        /* 3D Visualizer Tactical Arena */
+        #simulator-panel-container {
+            width: 100%;
+            height: 320px;
+            border-radius: 10px;
+            border: 1px solid var(--panel-border);
+            overflow: hidden;
+            position: relative;
+            background-color: #02030a;
+        }
+
         #simulator-panel {
             width: 100%;
-            height: 240px;
-            background-color: #020408;
-            border-radius: 10px;
-            border: 1px solid #1f2937;
+            height: 100%;
         }
-        /* Glass Cockpit HUD Canvas */
+
+        /* HUD overlays inside panels */
+        .hud-overlay-text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--accent-teal);
+            pointer-events: none;
+            background: rgba(6, 9, 19, 0.7);
+            padding: 5px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--panel-border);
+            letter-spacing: 0.05em;
+        }
+
+        /* Glass Cockpit Canvas */
         #hud-canvas-container {
             position: relative;
             width: 100%;
-            height: 200px;
-            margin-top: 10px;
-            background-color: #020408;
+            height: 240px;
+            background-color: #02030a;
             border-radius: 10px;
-            border: 1px solid #1f2937;
+            border: 1px solid var(--panel-border);
             overflow: hidden;
         }
+
         canvas#hud_canvas {
             width: 100%;
             height: 100%;
         }
-        /* Draw-to-Fly Canvas CSS */
+
+        /* Draw-to-Fly Canvas */
         .draw-panel {
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
+            gap: 8px;
         }
+
         canvas#draw_canvas {
             width: 100%;
-            height: 120px;
-            background-color: #020408;
+            height: 140px;
+            background-color: #02030a;
             border-radius: 10px;
-            border: 1px solid #1f2937;
+            border: 1px solid var(--panel-border);
             cursor: crosshair;
+            box-shadow: inset 0 0 15px rgba(0, 180, 216, 0.15);
         }
-        .telemetry-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 12px;
-        }
-        .telemetry-card {
-            background-color: #0b0f19;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #1e293b;
-        }
-        .telemetry-card div:first-child {
-            font-size: 8px;
-            text-transform: uppercase;
-            color: #64748b;
-            letter-spacing: 0.1em;
-        }
-        .telemetry-card div:last-child {
-            font-size: 14px;
-            font-weight: 700;
-            color: #00f0ff;
-            margin-top: 3px;
-            font-family: monospace;
-        }
+
+        /* High-integrity Tactile Buttons & Controllers */
         .phone-modes {
-            display: flex;
-            gap: 5px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
             width: 100%;
-            margin-bottom: 10px;
         }
+
         .phone-btn {
-            flex: 1;
-            padding: 10px;
-            font-size: 11px;
-            background-color: #0b0f19;
-            border: 1px solid #1e293b;
-            color: #64748b;
-            border-radius: 8px;
+            padding: 8px 4px;
+            font-size: 10px;
+            background: rgba(13, 20, 38, 0.8);
+            border: 1px solid var(--panel-border);
+            color: var(--text-muted);
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             font-weight: bold;
+            font-family: var(--font-mono);
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
+        .phone-btn:hover {
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 8px rgba(0, 180, 216, 0.3);
+        }
+
         .phone-btn.active {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #60a5fa;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.2) 0%, rgba(0, 180, 216, 0.05) 100%);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 12px rgba(0, 180, 216, 0.4), inset 0 0 10px rgba(0, 180, 216, 0.2);
         }
+
         .phone-btn.active.drone {
-            background-color: #00f0ff;
-            border-color: #00f0ff;
-            color: #03050a;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+            background: linear-gradient(135deg, rgba(0, 245, 212, 0.2) 0%, rgba(0, 245, 212, 0.05) 100%);
+            border-color: var(--accent-teal);
+            color: var(--accent-teal);
+            box-shadow: 0 0 12px rgba(0, 245, 212, 0.4), inset 0 0 10px rgba(0, 245, 212, 0.2);
         }
+
         button.action-btn {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #38bdf8;
-            color: #38bdf8;
+            background: linear-gradient(135deg, rgba(13, 20, 38, 0.9) 0%, rgba(6, 9, 19, 0.9) 100%);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
             padding: 10px;
             border-radius: 8px;
-            font-weight: 700;
+            font-weight: bold;
+            font-family: var(--font-mono);
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
+
         button.action-btn:hover {
-            background-color: #38bdf8;
-            color: #03050a;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            background: var(--accent-blue);
+            color: var(--bg-deep);
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
+            transform: translateY(-1px);
         }
-        .log-box {
+
+        /* Call Control Panel */
+        .call-hud {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             width: 100%;
-            height: 100px;
-            background-color: #020408;
-            border-radius: 8px;
-            padding: 8px;
-            font-family: monospace;
-            font-size: 11px;
-            overflow-y: auto;
-            border: 1px solid #1e293b;
+            background: rgba(6, 9, 19, 0.6);
+            border: 1px solid var(--panel-border);
+            padding: 12px;
+            border-radius: 10px;
             box-sizing: border-box;
-            color: #00f0ff;
         }
-        .status-badge {
-            background-color: #ef4444;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
+
+        .call-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .call-btn {
+            background: linear-gradient(135deg, rgba(0, 245, 212, 0.2) 0%, rgba(0, 245, 212, 0.05) 100%);
+            color: var(--accent-teal);
+            border: 1px solid var(--accent-teal);
+            padding: 8px 16px;
+            font-size: 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-mono);
             font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        .status-badge.authorized {
-            background-color: #00f0ff;
-            color: #03050a;
-            box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+
+        .call-btn:hover {
+            box-shadow: 0 0 10px var(--accent-teal);
         }
-        /* Grid selectors for Swarms & ActiveTrack */
+
+        .call-btn.active {
+            background: linear-gradient(135deg, rgba(255, 0, 84, 0.2) 0%, rgba(255, 0, 84, 0.05) 100%);
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        .call-btn.active:hover {
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        .call-pulse {
+            width: 10px;
+            height: 10px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .call-pulse.active {
+            background-color: var(--accent-teal);
+            box-shadow: 0 0 8px var(--accent-teal);
+        }
+
+        .call-pulse.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--accent-teal);
+            animation: pulse-ring 1.5s infinite;
+            box-sizing: border-box;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        #remote-video-feed {
+            width: 100%;
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            display: none;
+            background-color: #000;
+        }
+
+        #remote-video-feed.visible {
+            display: block;
+        }
+
+        /* Telemetry Matrix Display Grid */
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        .telemetry-card {
+            background: rgba(6, 9, 19, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+        }
+
+        .telemetry-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-blue);
+            border-radius: 8px 0 0 8px;
+        }
+
+        .telemetry-card div:first-child {
+            font-size: 8px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            font-family: var(--font-mono);
+        }
+
+        .telemetry-card div:last-child {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-teal);
+            font-family: var(--font-mono);
+            text-shadow: 0 0 5px rgba(0, 245, 212, 0.3);
+        }
+
+        /* Selectors Grid */
         .selector-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            gap: 6px;
             width: 100%;
-            margin-top: 5px;
         }
+
         .selector-item {
-            background-color: #0b0f19;
-            border: 1px solid #1e293b;
-            color: #64748b;
-            padding: 6px;
-            font-size: 10px;
-            border-radius: 4px;
+            background: rgba(13, 20, 38, 0.6);
+            border: 1px solid var(--panel-border);
+            color: var(--text-muted);
+            padding: 8px 4px;
+            font-size: 9px;
+            border-radius: 6px;
             cursor: pointer;
             text-align: center;
             font-weight: bold;
-            transition: all 0.2s;
+            font-family: var(--font-mono);
+            transition: all 0.3s;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
+
+        .selector-item:hover {
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
         .selector-item.active {
-            background-color: #00f0ff;
-            color: #03050a;
-            border-color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            background: linear-gradient(135deg, rgba(0, 245, 212, 0.15) 0%, rgba(0, 245, 212, 0.02) 100%);
+            color: var(--accent-teal);
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 10px rgba(0, 245, 212, 0.2);
         }
+
         /* Keyboard Diagnostic Overlays */
         .keyboard-hud {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            font-size: 10px;
-            color: #64748b;
-            background-color: #0b0f19;
+            gap: 6px;
+            font-size: 9px;
+            color: var(--text-muted);
+            background: rgba(6, 9, 19, 0.5);
             padding: 10px;
             border-radius: 8px;
             width: 100%;
             box-sizing: border-box;
-            margin-top: 10px;
-            border: 1px solid #1e293b;
+            border: 1px solid var(--panel-border);
+            font-family: var(--font-mono);
         }
+
         .key-badge {
-            background: #020408;
-            padding: 2px 6px;
+            background: rgba(13, 20, 38, 0.8);
+            padding: 4px 8px;
             border-radius: 4px;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: bold;
-            border: 1px solid #1e293b;
+            border: 1px solid var(--panel-border);
             transition: all 0.1s;
         }
+
         .key-badge.pressed {
-            background-color: #00f0ff;
-            color: #03050a;
-            border-color: #00f0ff;
-            box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+            background-color: var(--accent-blue);
+            color: var(--bg-deep);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
         }
-        /* Mobile Tactile Directional Key Buttons */
+
+        /* Tactile Joypad */
         .mobile-keypad-panel {
             display: none; 
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin-top: 10px;
             gap: 8px;
         }
+
         .keypad-row {
             display: flex;
             gap: 8px;
         }
+
         .keypad-btn {
-            width: 50px;
-            height: 50px;
-            background-color: #0b0f19;
-            border: 2px solid #1e293b;
+            width: 46px;
+            height: 46px;
+            background: rgba(13, 20, 38, 0.8);
+            border: 1px solid var(--panel-border);
             border-radius: 8px;
-            color: #f3f4f6;
-            font-size: 18px;
+            color: var(--accent-blue);
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -380,67 +650,99 @@
             touch-action: none;
             transition: all 0.1s;
         }
+
         .keypad-btn:active {
-            background-color: #00f0ff;
-            color: #03050a;
-            border-color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            background-color: var(--accent-blue);
+            color: var(--bg-deep);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px var(--accent-blue);
         }
-        .call-hud {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+
+        /* Intelligent Terminal Logs */
+        .log-box {
             width: 100%;
-            background-color: #0b0f19;
-            border: 1px solid #1e293b;
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 10px;
+            height: 140px;
+            background-color: #02030a;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            overflow-y: auto;
+            border: 1px solid var(--panel-border);
             box-sizing: border-box;
+            color: var(--accent-teal);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+            line-height: 1.5;
         }
-        .call-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        .call-btn {
-            background-color: #10b981;
+
+        .status-badge {
+            background-color: var(--accent-red);
             color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 12px;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
             font-weight: bold;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
         }
-        .call-btn.active {
-            background-color: #ef4444;
+
+        .status-badge.authorized {
+            background-color: var(--accent-teal);
+            color: var(--bg-deep);
+            box-shadow: 0 0 8px var(--accent-teal);
         }
-        .call-pulse {
-            width: 10px;
-            height: 10px;
-            background-color: #1e293b;
+
+        /* Virtual Joystick Overlays */
+        #joysticks-panel {
+            display: none;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .joystick-container {
+            width: 110px;
+            height: 110px;
+            background: rgba(13, 20, 38, 0.5);
+            border: 2px solid var(--panel-border);
             border-radius: 50%;
-            display: inline-block;
+            position: relative;
+            touch-action: none;
         }
-        .call-pulse.active {
-            background-color: #00f0ff;
-            animation: pulse 1.5s infinite;
+
+        .joystick-knob {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, rgba(0, 180, 216, 0.4) 100%);
+            border: 1px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 35px;
+            left: 35px;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-blue);
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🌌 COGNITIVE ENTANGLEMENT</h1>
-        <p>AEROSPATIAL GLASS COCKPIT • FLIGHT SYSTEMS HUD • SWARM CONTROLLER</p>
+        <div class="header-title-box">
+            <h1>🌌 COGNITIVE ENTANGLEMENT</h1>
+            <p>AEROSPATIAL GLASS COCKPIT • FLIGHT SYSTEMS 4D HUD • SWARM CONTROLLER</p>
+        </div>
+        <div class="system-time-box">
+            <span id="sys-clock">00:00:00 UTC</span>
+            <span id="sys-latency" style="font-size: 8px; color: var(--text-muted);">UPLINK SECURE (256-AES)</span>
+        </div>
     </header>
 
     <!-- Calibration Wizard Setup HUD -->
     <div class="wizard-panel">
-        <div class="wizard-title" id="wizard-step-txt">SYSTEM CALIBRATION STATUS</div>
-        <div class="wizard-prompt" id="wizard-prompt-txt">Connecting to onboard AI engine...</div>
+        <div class="wizard-left">
+            <div class="wizard-title" id="wizard-step-txt">SYSTEM CALIBRATION STATUS</div>
+            <div class="wizard-prompt" id="wizard-prompt-txt">Connecting to onboard AI engine...</div>
+        </div>
         <div class="wizard-steps">
             <div class="wizard-dot active" id="dot-welcome"></div>
             <div class="wizard-dot" id="dot-face"></div>
@@ -449,116 +751,232 @@
         </div>
     </div>
 
-    <div class="container">
-        <!-- 1. Sensory Interface -->
-        <div class="panel">
-            <h3>📷 Sensory Brain Module <span id="sec-badge" class="status-badge">Locked</span></h3>
-            
-            <div class="phone-modes">
-                <button class="phone-btn active" id="btn-mode-ai" onclick="setControlMode('AI')">👁️ AI Brain</button>
-                <button class="phone-btn" id="btn-mode-keyboard" onclick="setControlMode('KEYBOARD')">💻 Laptop Keys</button>
-                <button class="phone-btn" id="btn-mode-touch" onclick="setControlMode('TOUCH')">📱 Phone Keys</button>
-            </div>
-
-            <!-- FPV WebRTC Call Interface -->
-            <div class="call-hud">
-                <div style="font-size: 10px; text-transform: uppercase; color: #00f0ff; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%; margin-bottom: 5px;">📞 5G Cellular WebRTC Call Link</div>
-                <div class="call-controls">
-                    <div style="display:flex; align-items:center; gap: 8px;">
-                        <div class="call-pulse" id="call-pulse-node"></div>
-                        <span id="call-status-txt" style="font-size:11px; color:#64748b; font-weight:bold;">Call Offline</span>
-                    </div>
-                    <button class="call-btn" id="btn-call" onclick="toggleFPVCall()">Place WebRTC Call</button>
+    <div class="dashboard-grid">
+        <!-- COLUMN 1: Sensory Brain & Satcom -->
+        <div class="panel-column-left">
+            <div class="cyber-panel">
+                <h3>📷 Sensory Brain Module <span id="sec-badge" class="status-badge">Locked</span></h3>
+                
+                <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-blue); font-weight: bold; border-bottom: 1px solid rgba(0, 180, 216, 0.2); padding-bottom: 4px; width:100%; font-family: var(--font-mono);">💻 Device Role Selector</div>
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    <button class="phone-btn active" id="btn-role-pilot" onclick="setPhoneRole('PILOT')">📡 Ground Pilot (B)</button>
+                    <button class="phone-btn" id="btn-role-drone" onclick="setPhoneRole('DRONE')">🛸 Drone Brain (A)</button>
                 </div>
-                <!-- Onboard Phone A displays this feed of you from Phone B, running MediaPipe locally on it! -->
-                <video id="remote-video-feed" autoplay playsinline controls></video>
-            </div>
 
-            <!-- Video Frame Overlay (Displays your local camera feed when initialized) -->
-            <div id="video-container" style="margin-top: 10px;">
-                <video id="webcam" autoplay playsinline></video>
-                <canvas id="output_canvas"></canvas>
-            </div>
-            
-            <div style="display: flex; gap: 5px; width: 100%;">
-                <button class="action-btn" id="btn-init">Start Local Camera</button>
-                <button class="action-btn" style="background: #a855f7; border-color:#a855f7; color:#fff;" id="btn-gps" onclick="toggleGPSTracking()">GPS Track Location</button>
-            </div>
-            
-            <!-- Multi-Spectral FPV Camera Overlay (Thermal / Night Vision Shader) -->
-            <div style="width: 100%; margin-top: 15px;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #00f0ff; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">📡 Multi-Spectral FPV Camera Mode</div>
-                <div class="selector-grid">
-                    <button class="selector-item active" id="spectral-rgb" onclick="setSpectralMode('RGB')">RGB (Visual)</button>
-                    <button class="selector-item" id="spectral-thermal" style="color: #fb7185; border-color: rgba(251,113,133,0.3);" onclick="setSpectralMode('THERMAL')">Thermal IR</button>
-                    <button class="selector-item" id="spectral-nvg" style="color: #34d399; border-color: rgba(52,211,153,0.3);" onclick="setSpectralMode('NVG')">Night Vision</button>
+                <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-blue); font-weight: bold; border-bottom: 1px solid rgba(0, 180, 216, 0.2); padding-bottom: 4px; width:100%; font-family: var(--font-mono);">🎛️ Control Modality</div>
+                <div class="phone-modes">
+                    <button class="phone-btn active" id="btn-mode-ai" onclick="setControlMode('AI')">👁️ AI Brain</button>
+                    <button class="phone-btn" id="btn-mode-keyboard" onclick="setControlMode('KEYBOARD')">💻 Laptop Keys</button>
+                    <button class="phone-btn" id="btn-mode-touch" onclick="setControlMode('TOUCH')">📱 Tactile Sticks</button>
+                </div>
+
+                <!-- WebRTC Satcom Encrypted Link -->
+                <div class="call-hud">
+                    <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-blue); font-weight: bold; border-bottom: 1px solid rgba(0, 180, 216, 0.2); padding-bottom: 4px; width:100%; margin-bottom: 5px; font-family: var(--font-mono); display:flex; justify-content:space-between;">
+                        <span>📡 Tactical WebRTC Satcom Link</span>
+                        <span style="color: var(--accent-teal);">AES-256</span>
+                    </div>
+                    <div class="call-controls">
+                        <div style="display:flex; align-items:center; gap: 8px;">
+                            <div class="call-pulse" id="call-pulse-node"></div>
+                            <span id="call-status-txt" style="font-size:10px; color:var(--text-muted); font-weight:bold; font-family:var(--font-mono);">Link Offline</span>
+                        </div>
+                        <button class="call-btn" id="btn-call" onclick="toggleFPVCall()">Establish Satcom Link</button>
+                    </div>
+                    <video id="remote-video-feed" autoplay playsinline controls></video>
+                </div>
+
+                <!-- Video Frame Overlay -->
+                <div id="video-container">
+                    <div class="hud-overlay-text">LIVE STREAM FEED</div>
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="output_canvas"></canvas>
+                </div>
+                
+                <div style="display: flex; gap: 8px; width: 100%;">
+                    <button class="action-btn" id="btn-init">🔌 Start Local Camera</button>
+                    <button class="action-btn" style="border-color: var(--accent-orange); color: var(--accent-orange);" id="btn-gps" onclick="toggleGPSTracking()">🛰️ GPS Sat-Track</button>
+                </div>
+                
+                <!-- Multi-Spectral FPV Overlay -->
+                <div style="width: 100%;">
+                    <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-blue); font-weight: bold; border-bottom: 1px solid rgba(0, 180, 216, 0.2); padding-bottom: 4px; width:100%; margin-bottom: 5px; font-family: var(--font-mono);">⚡ FPGA Image Processing Shaders</div>
+                    <div class="selector-grid">
+                        <button class="selector-item active" id="spectral-rgb" onclick="setSpectralMode('RGB')">RGB Standard</button>
+                        <button class="selector-item" id="spectral-thermal" style="color: var(--accent-red); border-color: rgba(255,0,84,0.2);" onclick="setSpectralMode('THERMAL')">Thermal IR</button>
+                        <button class="selector-item" id="spectral-nvg" style="color: var(--accent-teal); border-color: rgba(0,245,212,0.2);" onclick="setSpectralMode('NVG')">NVG Green</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. SpaceX Cockpit HUD (Telemetry indications) -->
-        <div class="panel">
-            <h3>✈️ SpaceX Glass Cockpit Flight HUD</h3>
-            
-            <!-- Real-time dynamic attitude indicator, compass, and vertical tapes -->
-            <div id="hud-canvas-container">
-                <canvas id="hud_canvas"></canvas>
-            </div>
-
-            <!-- Swarm Formation Shifter Selector -->
-            <div style="width: 100%; margin-top: 10px;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #10b981; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">🐝 Swarm Formation Shifter</div>
-                <div class="selector-grid">
-                    <button class="selector-item active" id="form-v" onclick="setSwarmFormation('V-SHAPE')">V-Shape</button>
-                    <button class="selector-item" id="form-line" onclick="setSwarmFormation('LINE')">Line Parallel</button>
-                    <button class="selector-item" id="form-orbit" onclick="setSwarmFormation('ORBIT')">Orbit Helix</button>
+        <!-- COLUMN 2: 3D Tactical Radar Arena -->
+        <div class="panel-column-center">
+            <div class="cyber-panel">
+                <h3>🛰️ 3D / 4D Cybernetic Tactical Radar</h3>
+                
+                <!-- Real-time ThreeJS Swarm Rendering -->
+                <div id="simulator-panel-container">
+                    <div class="hud-overlay-text">3D DIGITAL TWIN SPATIAL GRID</div>
+                    <div id="simulator-panel"></div>
                 </div>
-            </div>
 
-            <!-- Draw-To-Fly curves panel -->
-            <div class="draw-panel" style="margin-top: 15px;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #a5b4fc; font-weight: bold; margin-bottom: 5px;">✍️ Draw-To-Fly Curve Path</div>
-                <canvas id="draw_canvas"></canvas>
-                <div style="display: flex; gap: 5px; width: 100%; margin-top: 5px;">
-                    <button class="action-btn" style="background: #3b82f6; border-color:#3b82f6; margin-top: 0; padding: 6px; color:#fff;" onclick="executeDrawPath()">Execute Flight Path</button>
-                    <button class="action-btn" style="background: #4b5563; border-color:#4b5563; margin-top: 0; padding: 6px; color:#fff;" onclick="clearDrawPath()">Clear Canvas</button>
+                <!-- Swarm Formations Shift -->
+                <div style="width: 100%;">
+                    <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-teal); font-weight: bold; border-bottom: 1px solid rgba(0, 245, 212, 0.2); padding-bottom: 4px; width:100%; margin-bottom: 5px; font-family: var(--font-mono);">🐝 Swarm Spatial Formation</div>
+                    <div class="selector-grid">
+                        <button class="selector-item active" id="form-v" onclick="setSwarmFormation('V-SHAPE')">V-Shape</button>
+                        <button class="selector-item" id="form-line" onclick="setSwarmFormation('LINE')">Parallel Line</button>
+                        <button class="selector-item" id="form-orbit" onclick="setSwarmFormation('ORBIT')">Orbit Helix</button>
+                    </div>
+                </div>
+
+                <!-- Draw-To-Fly Curve Panel -->
+                <div class="draw-panel">
+                    <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-blue); font-weight: bold; font-family: var(--font-mono);">✍️ Touch/Draw Trajectory Path</div>
+                    <canvas id="draw_canvas"></canvas>
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <button class="action-btn" style="border-color: var(--accent-teal); color: var(--accent-teal);" onclick="executeDrawPath()">🚀 Dispatched Path</button>
+                        <button class="action-btn" style="border-color: var(--text-muted); color: var(--text-muted);" onclick="clearDrawPath()">🧼 Reset Canvas</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. Telemetry Matrix -->
-        <div class="panel">
-            <h3>📊 Telemetry Matrix</h3>
-            <div class="telemetry-grid">
-                <div class="telemetry-card">
-                    <div>System State</div>
-                    <div id="state-txt" style="color: #00f0ff;">IDLE</div>
+        <!-- COLUMN 3: Glass Cockpit HUD & Logs -->
+        <div class="panel-column-right">
+            <div class="cyber-panel">
+                <h3>✈️ SpaceX Glass Cockpit Flight HUD</h3>
+                
+                <div id="hud-canvas-container">
+                    <canvas id="hud_canvas"></canvas>
                 </div>
-                <div class="telemetry-card">
-                    <div>Gesture / ASL Sign</div>
-                    <div id="gesture-txt" style="color: #10b981;">NONE</div>
-                </div>
-                <div class="telemetry-card">
-                    <div>Onboard Swarm Twin</div>
-                    <div id="simulator-panel-card" style="height: 60px; overflow:hidden;">
-                        <!-- Embed small secondary inline WebGL renderer -->
-                        <div id="simulator-panel" style="height: 100%; width: 100%;"></div>
+
+                <!-- ActiveTrack Targets -->
+                <div style="width: 100%;">
+                    <div style="font-size: 9px; text-transform: uppercase; color: var(--accent-orange); font-weight: bold; border-bottom: 1px solid rgba(255,158,0,0.2); padding-bottom: 4px; width:100%; margin-bottom: 5px; font-family: var(--font-mono);">🎯 ActiveTrack Target Lock</div>
+                    <div class="selector-grid">
+                        <button class="selector-item active" id="track-cancel" onclick="setActiveTrackTarget('CANCEL')">Human</button>
+                        <button class="selector-item" id="track-ball" onclick="setActiveTrackTarget('ball')">Ball</button>
+                        <button class="selector-item" id="track-backpack" onclick="setActiveTrackTarget('backpack')">Backpack</button>
                     </div>
                 </div>
-                <div class="telemetry-card">
-                    <div>GPS Satellites (DOP)</div>
-                    <div id="gps-lock-txt" style="color: #10b981; font-family:monospace; font-weight:bold;">LOCK: 3D (DOP: 1.15)</div>
-                </div>
             </div>
-            
-            <h4>📋 System Intelligence Logs</h4>
-            <div class="log-box" id="log-box">
-                [SYSTEM]: Initialize local sensors or join call to establish remote pilot loops.
+
+            <!-- Telemetry Matrix & Cyber Console -->
+            <div class="cyber-panel">
+                <h3>📊 Tactical Telemetry Matrix</h3>
+                <div class="telemetry-grid">
+                    <div class="telemetry-card" style="--accent-blue: var(--accent-blue);">
+                        <div>State Matrix</div>
+                        <div id="state-txt">IDLE</div>
+                    </div>
+                    <div class="telemetry-card" style="--accent-blue: var(--accent-teal);">
+                        <div>Cognitive Gesture</div>
+                        <div id="gesture-txt">NONE</div>
+                    </div>
+                    <div class="telemetry-card" style="--accent-blue: var(--accent-orange);">
+                        <div>System Energy</div>
+                        <div id="battery-txt">100%</div>
+                    </div>
+                    <div class="telemetry-card" style="--accent-blue: var(--accent-red);">
+                        <div>Watchdog Status</div>
+                        <div id="failsafe-txt" style="color: var(--accent-teal);">SECURE</div>
+                    </div>
+                </div>
+                
+                <h4>📋 Mission Intelligence terminal logs</h4>
+                <div class="log-box" id="log-box">
+                    [SYSTEM READY]: Establish secure satcom link or init local sensors.
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Interactive Tactile Joysticks Overlay (Displays when Touch Stick mode active) -->
+    <div class="cyber-panel" id="joysticks-panel">
+        <h3>🕹️ Tactile Flight Sticks (Phone A/B Web-Uplink)</h3>
+        <div style="display:flex; justify-content:space-around; width:100%; margin-top:10px;">
+            <div class="joystick-container" id="left-joystick">
+                <div style="position:absolute; top:-16px; left:0; width:100%; text-align:center; font-size:8px; font-family:var(--font-mono); color:var(--text-muted);">ALTITUDE / YAW</div>
+                <div class="joystick-knob" id="left-knob"></div>
+            </div>
+            <div class="joystick-container" id="right-joystick">
+                <div style="position:absolute; top:-16px; left:0; width:100%; text-align:center; font-size:8px; font-family:var(--font-mono); color:var(--text-muted);">PITCH / ROLL</div>
+                <div class="joystick-knob" id="right-knob"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden keyboard layout indicators for diagnostics -->
+    <div class="cyber-panel" id="keyboard-hud-panel" style="display: none;">
+        <h3>💻 Laptop Override Key Indicators</h3>
+        <div class="keyboard-hud">
+            <span class="key-badge" id="key-w">W (Fwd)</span>
+            <span class="key-badge" id="key-s">S (Rev)</span>
+            <span class="key-badge" id="key-a">A (Left)</span>
+            <span class="key-badge" id="key-d">D (Right)</span>
+            <span class="key-badge" id="key-arrowup">↑ (Up)</span>
+            <span class="key-badge" id="key-arrowdown">↓ (Down)</span>
+            <span class="key-badge" id="key-arrowleft">← (Ccw)</span>
+            <span class="key-badge" id="key-arrowright">→ (Cw)</span>
+            <span class="key-badge" id="key- ">Space (Takeoff)</span>
+            <span class="key-badge" id="key-escape">Esc (Land)</span>
+        </div>
+    </div>
+
     <script>
+        // System Clock Tick
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('sys-clock').innerText = now.toUTCString();
+        }, 1000);
+
+        // Web Audio High-Tech Beep Synthesizer for "realatics" HUD sounds
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSciFiBeep(type = "click") {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                if (type === "click") {
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.08);
+                } else if (type === "success") {
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === "warning") {
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch(e) {}
+        }
+
+        // Attach click sounds to selector buttons
+        document.querySelectorAll('button, .selector-item, .phone-btn').forEach(btn => {
+            btn.addEventListener('click', () => playSciFiBeep("click"));
+        });
+
         const socket = io();
         const webcam = document.getElementById('webcam');
         const remoteFeed = document.getElementById('remote-video-feed');
@@ -579,21 +997,19 @@
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         };
 
-        // Parse role parameters directly from URL query parameters on load! (e.g. ?role=pilot or ?role=drone)
+        // Parse role parameters directly from URL query parameters on load!
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const roleParam = urlParams.get('role');
             if (roleParam) {
                 const targetRole = roleParam.toUpperCase();
                 if (targetRole === "PILOT" || targetRole === "DRONE") {
-                    log(`[SYSTEM]: URL Router detected autostart parameter. Fixing role as: ${targetRole}`);
+                    log(`[SYSTEM]: URL Router detected role: ${targetRole}`);
                     setPhoneRole(targetRole);
-                    
-                    // IF PILOT (Phone B): Automatically trigger local camera permission on load!
                     if (targetRole === "PILOT") {
                         setTimeout(() => {
                             log("[SYSTEM]: Auto-Calibrating Ground Pilot Camera feed...");
-                            document.getElementById('btn-init').click(); // Auto-trigger camera startup on load!
+                            document.getElementById('btn-init').click(); 
                         }, 1000);
                     }
                 }
@@ -602,43 +1018,41 @@
 
         function setPhoneRole(role) {
             phoneRole = role;
-            document.querySelectorAll('.phone-btn').forEach(btn => btn.classList.remove('active'));
-            const btnPilot = document.getElementById('btn-role-pilot');
-            const btnDrone = document.getElementById('btn-role-drone');
-
-            // Send role registration message directly to server! (Critical for Auto-Connect!)
             socket.emit('role_register', { role: role });
 
+            const btnPilot = document.getElementById('btn-role-pilot');
+            const btnDrone = document.getElementById('btn-role-drone');
+            
+            if (btnPilot) btnPilot.classList.remove('active');
+            if (btnDrone) btnDrone.classList.remove('active', 'drone');
+
             if (role === "PILOT") {
-                btnPilot.classList.add('active');
+                if (btnPilot) btnPilot.classList.add('active');
                 document.getElementById('video-container').style.display = "block";
                 remoteFeed.classList.remove('visible');
-                log("[ROLE]: Configured as Ground Pilot (Phone B). Ready to broadcast video call.");
+                log("[ROLE]: Ground Pilot Role (Phone B) Broadcaster ready.");
             } else if (role === "DRONE") {
-                btnDrone.classList.add('active', 'drone');
+                if (btnDrone) btnDrone.classList.add('active', 'drone');
                 document.getElementById('video-container').style.display = "none";
                 remoteFeed.classList.add('visible'); 
-                log("[ROLE]: Configured as Drone Brain (Phone A). MediaPipe listening on remote stream feed!");
+                log("[ROLE]: Drone Autonomous Brain (Phone A) Listener ready.");
             }
         }
 
         // --- 🤖 HIGH-SPEED AUTOMATIC CALL CONNECTION LOOP 🤖 ---
         socket.on('start_auto_call', async () => {
-            log("[SOCKET]: Both Pilot (Phone B) and Drone Brain (Phone A) online!");
-            log("[SOCKET]: Triggering automatic 5G WebRTC voice/video connection...");
-            
-            // Auto-trigger Speech Synthesis feedback to announce connection
+            log("[SOCKET]: Both Pilot and Drone Online! Initiating secure Satcom uplink...");
+            playSciFiBeep("success");
             if (window.speechSynthesis) {
-                const autoCallUtterance = new SpeechSynthesisUtterance("Cognitive connection established. Launching automatic Web-R-T-C video and voice call stream.");
+                const autoCallUtterance = new SpeechSynthesisUtterance("Cognitive link established.");
                 window.speechSynthesis.speak(autoCallUtterance);
             }
-            
             if (!callActive) {
-                await toggleFPVCall(); // Launch call automatically with ZERO clicks!
+                await toggleFPVCall(); 
             }
         });
 
-        // --- Branded Role & Controller Toggles ---
+        // --- Controller Mode Toggles ---
         function setControlMode(mode) {
             controlMode = mode;
             document.querySelectorAll('.phone-modes button').forEach(btn => btn.classList.remove('active'));
@@ -649,76 +1063,85 @@
                 document.getElementById('btn-init').style.display = "block";
                 document.getElementById('keyboard-hud-panel').style.display = "none";
                 document.getElementById('joysticks-panel').style.display = "none";
-                log("[MODE]: Switched to Cognitive AI (Mute ASL gestures + Eye-Morse active).");
+                log("[MODE]: Shifted to Autonomous Gestural AI Mode.");
             } else if (mode === "KEYBOARD") {
                 document.getElementById('btn-mode-keyboard').classList.add('active');
                 document.getElementById('video-container').style.display = "none";
                 document.getElementById('btn-init').style.display = "none";
                 document.getElementById('keyboard-hud-panel').style.display = "flex";
                 document.getElementById('joysticks-panel').style.display = "none";
-                log("[MODE]: Switched to Laptop Key override (WASD + Arrows).");
+                log("[MODE]: Shifted to Laptop Manual Override Keys.");
             } else if (mode === "TOUCH") {
                 document.getElementById('btn-mode-touch').classList.add('active');
                 document.getElementById('video-container').style.display = "none";
                 document.getElementById('btn-init').style.display = "none";
                 document.getElementById('keyboard-hud-panel').style.display = "none";
                 document.getElementById('joysticks-panel').style.display = "flex";
-                log("[MODE]: Switched to Phone Tactile Key Button override.");
+                log("[MODE]: Shifted to 4D Tactile Joystick Control Overlay.");
             }
         }
 
-        // --- Dynamic Formations & ActiveTrack selectors ---
+        // --- Formations ---
         let selectedFormation = "V-SHAPE";
         let selectedTrackTarget = "CANCEL";
 
         function setSwarmFormation(formation) {
             selectedFormation = formation;
-            document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
-                if (btn.id.startsWith('form-')) btn.classList.remove('active');
-            });
-            const btnId = `form-${formation.replace('-','').toLowerCase()}`;
+            document.querySelectorAll('#form-v, #form-line, #form-orbit').forEach(btn => btn.classList.remove('active'));
+            
+            let btnId = "form-v";
+            if (formation === "LINE") btnId = "form-line";
+            if (formation === "ORBIT") btnId = "form-orbit";
+            
             const btn = document.getElementById(btnId);
             if (btn) btn.classList.add('active');
-            log(`[SWARM]: Transitioning swarm formation to: ${formation}`);
+            log(`[SWARM]: Reforming swarm cluster to: ${formation}`);
             socket.emit('telemetry_update', { formation_cmd: formation });
         }
 
         function setActiveTrackTarget(targetClass) {
             selectedTrackTarget = targetClass;
-            document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
-                if (btn.id.startsWith('track-')) btn.classList.remove('active');
-            });
-            const btnId = `track-${targetClass.toLowerCase()}`;
+            document.querySelectorAll('#track-cancel, #track-ball, #track-backpack').forEach(btn => btn.classList.remove('active'));
+            
+            let btnId = "track-cancel";
+            if (targetClass === "ball") btnId = "track-ball";
+            if (targetClass === "backpack") btnId = "track-backpack";
+            
             const btn = document.getElementById(btnId);
             if (btn) btn.classList.add('active');
-            
-            if (targetClass === "CANCEL") {
-                log("[ACTIVETRACK]: Resuming default human skeleton following.");
-            } else {
-                log(`[ACTIVETRACK]: Locking onboard target class to: '${targetClass.toUpperCase()}'`);
-            }
+            log(`[ACTIVE-TRACK]: Locking onboard camera system onto class: '${targetClass.toUpperCase()}'`);
             socket.emit('telemetry_update', { tracking_target_cmd: targetClass });
         }
 
-        // --- Multi-Spectral FPV Camera Mode (Pixel Shader Filters!) ---
-        let activeSpectralMode = "RGB"; // RGB, THERMAL, NVG
+        // --- FPGA Multi-Spectral Shaders (Pixel Shaders) ---
+        let activeSpectralMode = "RGB"; 
 
         function setSpectralMode(mode) {
             activeSpectralMode = mode;
-            document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
-                if (btn.id.startsWith('spectral-')) btn.classList.remove('active');
-            });
-            const btn = document.getElementById(`spectral-${mode.toLowerCase()}`);
+            document.querySelectorAll('#spectral-rgb, #spectral-thermal, #spectral-nvg').forEach(btn => btn.classList.remove('active'));
+            
+            let btnId = "spectral-rgb";
+            if (mode === "THERMAL") btnId = "spectral-thermal";
+            if (mode === "NVG") btnId = "spectral-nvg";
+            
+            const btn = document.getElementById(btnId);
             if (btn) btn.classList.add('active');
-            log(`[SENSORS]: Shifted onboard FPV sensor mode to: ${mode}`);
+            log(`[SENSORS]: Shifted onboard sensor array mode: ${mode}`);
         }
 
-        // Applies real-time visual filter algorithms (representing onboard FPGA image processing!)
         function applySpectralFilters(imageElement) {
-            // Draw standard raw frame first
             ctx.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
 
-            if (activeSpectralMode === "RGB") return; // Bypassed for standard colored feed
+            if (activeSpectralMode === "RGB") {
+                // Cool scanning grid overlays even in RGB
+                ctx.strokeStyle = "rgba(0, 180, 216, 0.15)";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width/2, 0); ctx.lineTo(canvas.width/2, canvas.height);
+                ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2);
+                ctx.stroke();
+                return; 
+            }
 
             const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imgData.data;
@@ -728,36 +1151,37 @@
                 const g = data[i+1];
                 const b = data[i+2];
 
-                // Calculate luminance
                 const luma = 0.299 * r + 0.587 * g + 0.114 * b;
 
                 if (activeSpectralMode === "NVG") {
-                    // Phosphor-Green Night Vision: Map luminance to pure high-gain green channel
-                    data[i] = luma * 0.1;     // Suppress red
-                    data[i+1] = luma * 1.6;   // High-gain green
-                    data[i+2] = luma * 0.15;  // Low blue
+                    // NVG Phosphor green with analog scanner grid lines
+                    data[i] = luma * 0.15;     
+                    data[i+1] = Math.min(255, luma * 1.7 + 15);   
+                    data[i+2] = luma * 0.2;  
                 } 
                 else if (activeSpectralMode === "THERMAL") {
-                    // Thermal Infrared (Heat Map): Map cold pixels to deep blues/purples, hot pixels to orange/red/white
                     if (luma < 85) {
-                        // Cold (0 - 85): Blue to Purple
-                        data[i] = luma * 0.5;
+                        data[i] = luma * 0.6;
                         data[i+1] = 0;
-                        data[i+2] = luma * 2.5;
+                        data[i+2] = luma * 2.8;
                     } else if (luma < 170) {
-                        // Warm (85 - 170): Purple to Orange/Red
-                        data[i] = luma * 2.0;
-                        data[i+1] = (luma - 85) * 1.5;
+                        data[i] = luma * 2.2;
+                        data[i+1] = (luma - 85) * 1.8;
                         data[i+2] = 0;
                     } else {
-                        // Hot (170 - 255): Yellow to White
                         data[i] = 255;
                         data[i+1] = 200 + (luma - 170);
-                        data[i+2] = (luma - 170) * 3.0;
+                        data[i+2] = (luma - 170) * 3.5;
                     }
                 }
             }
             ctx.putImageData(imgData, 0, 0);
+
+            // Add dynamic raster scanlines overlay
+            ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+            for (let y = 0; y < canvas.height; y += 4) {
+                ctx.fillRect(0, y, canvas.width, 1);
+            }
         }
 
         // --- Draw-to-Fly Canvas Operations ---
@@ -769,36 +1193,58 @@
         dCanvas.width = dCanvas.clientWidth;
         dCanvas.height = dCanvas.clientHeight;
 
-        dCtx.strokeStyle = '#00f0ff';
+        dCtx.strokeStyle = '#00f5d4';
         dCtx.lineWidth = 3;
         dCtx.lineCap = 'round';
-        dCtx.shadowBlur = 10;
-        dCtx.shadowColor = '#00f0ff';
+        dCtx.shadowBlur = 8;
+        dCtx.shadowColor = '#00f5d4';
+
+        function getCoordinates(e) {
+            const rect = dCanvas.getBoundingClientRect();
+            let clientX, clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
 
         function startDrawing(e) {
             isDrawing = true;
-            dCtx.beginPath();
-            const rect = dCanvas.getBoundingClientRect();
-            const x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
-            const y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-            dCtx.moveTo(x, y);
+            dCtx.beginPath(); 
+            const coords = getCoordinates(e);
+            dCtx.moveTo(coords.x, coords.y);
             flightPathPoints = [];
-            recordPoint(x, y);
+            recordPoint(coords.x, coords.y);
+            e.preventDefault();
         }
 
         function draw(e) {
             if (!isDrawing) return;
-            const rect = dCanvas.getBoundingClientRect();
-            const x = e.clientX - rect.left || e.touches[0].clientX - rect.left;
-            const y = e.clientY - rect.top || e.touches[0].clientY - rect.top;
-            dCtx.lineTo(x, y);
+            const coords = getCoordinates(e);
+            dCtx.lineTo(coords.x, coords.y);
             dCtx.stroke();
-            recordPoint(x, y);
+            recordPoint(coords.x, coords.y);
+            
+            // Mirror coordinate instantly as a glowing trace in the 3D grid!
+            update3DTrajectoryTrace();
+            
             e.preventDefault();
         }
 
         function stopDrawing() {
-            isDrawing = false;
+            if (isDrawing) {
+                isDrawing = false;
+                dCtx.beginPath(); 
+            }
         }
 
         function recordPoint(canvasX, canvasY) {
@@ -808,29 +1254,44 @@
         }
 
         function clearDrawPath() {
+            isDrawing = false; 
             dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
+            dCtx.beginPath(); 
             flightPathPoints = [];
-            log("[DRAW]: Path canvas cleared.");
+            
+            // Clear trail in 3D Arena
+            if (drawnPathLine) {
+                scene.remove(drawnPathLine);
+                drawnPathLine = null;
+            }
+            log("[DRAW]: Trajectory cleared.");
         }
 
         function executeDrawPath() {
             if (flightPathPoints.length === 0) {
-                log("[DRAW ERR]: No path detected. Draw a line first!");
+                log("[DRAW ERR]: No coordinates. Drag path first!");
+                playSciFiBeep("warning");
                 return;
             }
-            log(`[DRAW]: Transmitting drawn route of ${flightPathPoints.length} points to Drone Brain.`);
+            log(`[DRAW]: Despatching trajectory coordinate array of ${flightPathPoints.length} points.`);
+            playSciFiBeep("success");
             socket.emit('telemetry_update', { draw_coords: flightPathPoints });
         }
 
         dCanvas.addEventListener('mousedown', startDrawing);
         dCanvas.addEventListener('mousemove', draw);
         dCanvas.addEventListener('mouseup', stopDrawing);
-        dCanvas.addEventListener('touchstart', startDrawing);
-        dCanvas.addEventListener('touchmove', draw);
+        dCanvas.addEventListener('mouseleave', stopDrawing);
+        
+        dCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+        dCanvas.addEventListener('touchmove', draw, { passive: false });
         dCanvas.addEventListener('touchend', stopDrawing);
+        dCanvas.addEventListener('touchcancel', stopDrawing);
 
+        window.addEventListener('mouseup', stopDrawing);
+        window.addEventListener('touchend', stopDrawing);
 
-        // --- WebRTC signaling over Socket.io ---
+        // --- WebRTC Signaling ---
         socket.on('webrtc_signaling', async (data) => {
             if (!callActive || !peerConnection) return;
 
@@ -846,11 +1307,10 @@
                     await peerConnection.addIceCandidate(new RTCIceCandidate(data.ice));
                 }
             } catch (err) {
-                log(`[WebRTC ERR]: Signaling match failure: ${err.message}`);
+                log(`[WebRTC ERR]: Link negotiation sync failed: ${err.message}`);
             }
         });
 
-        // The WebRTC video/audio call connector function!
         async function toggleFPVCall() {
             const callBtn = document.getElementById('btn-call');
             const callPulse = document.getElementById('call-pulse-node');
@@ -858,10 +1318,10 @@
 
             if (!callActive) {
                 callActive = true;
-                callBtn.innerText = "End Call";
+                callBtn.innerText = "Terminate Link";
                 callBtn.className = "call-btn active";
                 callPulse.classList.add('active');
-                callStatus.innerText = "Connecting Call...";
+                callStatus.innerText = "Uplink Negotiating...";
 
                 peerConnection = new RTCPeerConnection(rtcConfig);
                 
@@ -873,8 +1333,9 @@
 
                 peerConnection.ontrack = (event) => {
                     remoteFeed.srcObject = event.streams[0];
-                    callStatus.innerText = "Call Live: Processing Commands Onboard";
-                    log("[CALL]: WebRTC video stream linked. Processing feed directly.");
+                    callStatus.innerText = "SECURE (256-AES) LINK LIVE";
+                    log("[CALL]: Encrypted satcom feed established. Tracking active.");
+                    playSciFiBeep("success");
                     
                     if (phoneRole === "DRONE") {
                         startOnboardProcessingLoop();
@@ -889,19 +1350,19 @@
                         const offer = await peerConnection.createOffer();
                         await peerConnection.setLocalDescription(offer);
                         socket.emit('webrtc_signaling', { sdp: peerConnection.localDescription });
-                        callStatus.innerText = "Streaming to Drone Brain...";
-                        log("[CALL]: Outgoing WebRTC stream initiated.");
+                        callStatus.innerText = "Transmitting to Drone Brain...";
+                        log("[CALL]: Outgoing encrypted video stream dished.");
                     } catch (err) {
-                        log(`[CALL ERR]: Failed to acquire camera: ${err.message}`);
+                        log(`[CALL ERR]: Media interface acquisition failed: ${err.message}`);
                     }
                 }
             } else {
                 cleanupCall();
-                callBtn.innerText = "Place WebRTC Call";
+                callBtn.innerText = "Establish Satcom Link";
                 callBtn.className = "call-btn";
                 callPulse.classList.remove('active');
-                callStatus.innerText = "Call Offline";
-                log("[CALL]: WebRTC connection terminated.");
+                callStatus.innerText = "Link Offline";
+                log("[CALL]: Secured satcom pipeline terminated.");
             }
         }
 
@@ -918,7 +1379,7 @@
             remoteFeed.srcObject = null;
         }
 
-        // --- Connection Monitoring Failsafe ---
+        // --- Connection Watchdog ---
         setInterval(() => {
             if (callActive && phoneRole === "DRONE") {
                 const timeSinceLastFrame = Date.now() - lastFrameTimestamp;
@@ -927,8 +1388,10 @@
                 if (timeSinceLastFrame > 1500 && !failsafeTriggered) {
                     failsafeTriggered = true;
                     failsafeCard.innerText = "TRIGGERED (LOS)";
-                    failsafeCard.style.color = "#ef4444";
-                    log("[WARNING]: Connection freeze detected! Onboard failsafe protocol triggered. Drone hovering safely.");
+                    failsafeCard.style.color = "var(--accent-red)";
+                    failsafeCard.style.textShadow = "0 0 10px var(--accent-red)";
+                    log("[WARNING]: Link freeze detected! Autonomous failsafe monitoring hover state.");
+                    playSciFiBeep("warning");
                     socket.emit('telemetry_update', { gesture: "CROSS_HANDS", voice_cmd: "STOP" });
                 }
             }
@@ -940,8 +1403,10 @@
                 failsafeTriggered = false;
                 const failsafeCard = document.getElementById('failsafe-txt');
                 failsafeCard.innerText = "SECURE";
-                failsafeCard.style.color = "#10b981";
-                log("[FPV]: Call stream recovered. Overcoming failsafe.");
+                failsafeCard.style.color = "var(--accent-teal)";
+                failsafeCard.style.textShadow = "0 0 5px rgba(0, 245, 212, 0.3)";
+                log("[FPV]: Tactical satcom link recovered.");
+                playSciFiBeep("success");
             }
         }
 
@@ -959,22 +1424,26 @@
             requestAnimationFrame(processFrame);
         }
 
-        // --- 2. Real-Time Glass Cockpit HUD Canvas Renderer (C++ Flight Equivalent) ---
+        // --- SpaceX Cockpit HUD Canvas Renderer (Precision Tactical Vectoring) ---
         const hCanvas = document.getElementById('hud_canvas');
         const hCtx = hCanvas.getContext('2d');
-        hCanvas.width = hCanvas.clientWidth;
-        hCanvas.height = 200;
-
+        
         let rollAngle = 0.0;     
         let pitchOffset = 0.0;   
         let headingYaw = 0.0;    
         let altitudeMeters = 0.0; 
         
-        // Precise Real-Time Aerospace Math:
         let lastAltitude = 0.0;
         let lastAltitudeTime = Date.now();
-        let climbRate = 0.0;      // Vertical Speed (m/s)
-        let estimatedGForce = 1.0; // G-force (Gs)
+        let climbRate = 0.0;      
+        let estimatedGForce = 1.0; 
+
+        function resizeHUD() {
+            hCanvas.width = hCanvas.clientWidth;
+            hCanvas.height = hCanvas.clientHeight;
+        }
+        window.addEventListener('resize', resizeHUD);
+        resizeHUD();
 
         function drawGlassCockpitHUD() {
             const cx = hCanvas.width / 2.0;
@@ -982,230 +1451,437 @@
             const now = Date.now();
             const dt = (now - lastAltitudeTime) / 1000.0;
 
-            // Calculate precise Climb Rate (VSI) and estimated G-Force
             if (dt >= 0.1) {
                 climbRate = (altitudeMeters - lastAltitude) / dt;
-                
-                // G-Force estimate based on vertical acceleration: G = 1.0 + (accel / g)
                 const verticalAccel = (climbRate - (lastAltitude - altitudeMeters)) / dt;
-                estimatedGForce = Math.max(0.2, Math.min(6.0, 1.0 + Math.abs(verticalAccel / 9.81)));
-
+                estimatedGForce = Math.max(0.5, Math.min(8.0, 1.0 + Math.abs(verticalAccel / 9.81)));
                 lastAltitude = altitudeMeters;
                 lastAltitudeTime = now;
             }
 
             hCtx.clearRect(0, 0, hCanvas.width, hCanvas.height);
 
-            // Level 1: Draw Artificial Horizon (Sky/Ground ball)
+            // Layer 1: Immersive Dynamic Artificial Horizon Ball
             hCtx.save();
             hCtx.translate(cx, cy);
             hCtx.rotate(-rollAngle * Math.PI / 180.0);
             hCtx.translate(0, pitchOffset);
 
-            // Sky (Light Blue)
-            hCtx.fillStyle = "rgba(0, 240, 255, 0.15)";
-            hCtx.fillRect(-300, -300, 600, 300);
-            // Ground (Brownish/Grey)
-            hCtx.fillStyle = "rgba(100, 116, 139, 0.2)";
-            hCtx.fillRect(-300, 0, 600, 300);
+            // Sky sphere (Glowing Cyber Blue)
+            const skyGrad = hCtx.createLinearGradient(0, -200, 0, 0);
+            skyGrad.addColorStop(0, "rgba(0, 180, 216, 0.25)");
+            skyGrad.addColorStop(1, "rgba(0, 180, 216, 0.05)");
+            hCtx.fillStyle = skyGrad;
+            hCtx.fillRect(-500, -500, 1000, 500);
 
-            // Pitch ladder lines
-            hCtx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+            // Ground sphere (Sleek Tactical Dark)
+            const groundGrad = hCtx.createLinearGradient(0, 0, 0, 200);
+            groundGrad.addColorStop(0, "rgba(13, 20, 38, 0.3)");
+            groundGrad.addColorStop(1, "rgba(6, 9, 19, 0.8)");
+            hCtx.fillStyle = groundGrad;
+            hCtx.fillRect(-500, 0, 1000, 500);
+
+            // Horizon line
+            hCtx.strokeStyle = "rgba(0, 245, 212, 0.8)";
             hCtx.lineWidth = 1.5;
+            hCtx.beginPath();
+            hCtx.moveTo(-150, 0); hCtx.lineTo(150, 0);
+            hCtx.stroke();
+
+            // Pitch Scales
+            hCtx.strokeStyle = "rgba(0, 180, 216, 0.4)";
+            hCtx.lineWidth = 1.0;
+            hCtx.font = "8px 'Fira Code', monospace";
+            hCtx.fillStyle = "rgba(0, 180, 216, 0.7)";
+            hCtx.textAlign = "center";
             for (let i = -30; i <= 30; i += 10) {
                 if (i !== 0) {
-                    const yOffset = i * -2.0;
+                    const yOffset = i * -3.0;
                     hCtx.beginPath();
-                    hCtx.moveTo(-30, yOffset);
-                    hCtx.lineTo(30, yOffset);
+                    hCtx.moveTo(-25, yOffset); hCtx.lineTo(25, yOffset);
+                    hCtx.moveTo(-25, yOffset); hCtx.lineTo(-25, yOffset + (i > 0 ? 5 : -5));
+                    hCtx.moveTo(25, yOffset); hCtx.lineTo(25, yOffset + (i > 0 ? 5 : -5));
                     hCtx.stroke();
-                    hCtx.fillStyle = "rgba(0, 240, 255, 0.6)";
-                    hCtx.font = "8px monospace";
-                    hCtx.fillText(i, -45, yOffset + 3);
+                    hCtx.fillText(i, -38, yOffset + 3);
+                    hCtx.fillText(i, 38, yOffset + 3);
                 }
             }
             hCtx.restore();
 
-            // Level 2: Draw Fixed Aircraft Indicator (Symbol in Center)
-            hCtx.strokeStyle = "#00f0ff";
-            hCtx.lineWidth = 3;
+            // Layer 2: Fixed Aircraft Reticle
+            hCtx.strokeStyle = "var(--accent-teal)";
+            hCtx.lineWidth = 2.5;
             hCtx.shadowBlur = 8;
-            hCtx.shadowColor = "#00f0ff";
+            hCtx.shadowColor = "var(--accent-teal)";
             hCtx.beginPath();
-            hCtx.moveTo(cx - 40, cy);
-            hCtx.lineTo(cx - 15, cy);
-            hCtx.lineTo(cx - 10, cy + 10);
-            hCtx.moveTo(cx + 40, cy);
-            hCtx.lineTo(cx + 15, cy);
-            hCtx.lineTo(cx + 10, cy + 10);
-            hCtx.moveTo(cx, cy - 8);
-            hCtx.lineTo(cx, cy + 8);
+            // Wing Left
+            hCtx.moveTo(cx - 50, cy); hCtx.lineTo(cx - 20, cy);
+            hCtx.lineTo(cx - 15, cy + 8);
+            // Wing Right
+            hCtx.moveTo(cx + 50, cy); hCtx.lineTo(cx + 20, cy);
+            hCtx.lineTo(cx + 15, cy + 8);
+            // Center Dot crosshair
+            hCtx.moveTo(cx, cy - 6); hCtx.lineTo(cx, cy + 6);
+            hCtx.moveTo(cx - 6, cy); hCtx.lineTo(cx + 6, cy);
             hCtx.stroke();
-            hCtx.shadowBlur = 0; // reset
+            hCtx.shadowBlur = 0;
 
-            // Level 3: Draw Heading Yaw Compass Tape (At the top)
-            hCtx.fillStyle = "#020408";
-            hCtx.fillRect(0, 0, hCanvas.width, 25);
-            hCtx.strokeStyle = "rgba(0, 240, 255, 0.3)";
+            // Layer 3: Heading Compass Tape (Rotates on Yaw)
+            hCtx.fillStyle = "rgba(2, 3, 10, 0.85)";
+            hCtx.fillRect(0, 0, hCanvas.width, 30);
+            hCtx.strokeStyle = "rgba(0, 180, 216, 0.3)";
             hCtx.beginPath();
-            hCtx.moveTo(0, 25);
-            hCtx.lineTo(hCanvas.width, 25);
+            hCtx.moveTo(0, 30); hCtx.lineTo(hCanvas.width, 30);
             hCtx.stroke();
 
-            hCtx.fillStyle = "#00f0ff";
-            hCtx.font = "10px monospace";
+            hCtx.fillStyle = "var(--accent-blue)";
+            hCtx.font = "9px 'Fira Code', monospace";
             hCtx.textAlign = "center";
             for (let i = -180; i <= 180; i += 10) {
                 const angleDiff = (i - headingYaw);
-                const xPos = cx + angleDiff * 2.0;
-                if (xPos > 10 && xPos < hCanvas.width - 10) {
+                const xPos = cx + angleDiff * 2.5;
+                if (xPos > 15 && xPos < hCanvas.width - 15) {
+                    hCtx.strokeStyle = "rgba(0, 180, 216, 0.35)";
                     hCtx.beginPath();
-                    hCtx.moveTo(xPos, 20);
-                    hCtx.lineTo(xPos, 25);
+                    hCtx.moveTo(xPos, 22); hCtx.lineTo(xPos, 30);
                     hCtx.stroke();
                     if (i % 30 === 0) {
-                        let label = i;
-                        if (i < 0) label = 360 + i;
-                        hCtx.fillText(label, xPos, 15);
+                        let label = i < 0 ? 360 + i : i;
+                        if (label === 0 || label === 360) label = "N";
+                        else if (label === 90) label = "E";
+                        else if (label === 180) label = "S";
+                        else if (label === 270) label = "W";
+                        hCtx.fillText(label, xPos, 14);
                     }
                 }
             }
-            // Draw Center Heading Index marker (White triangle)
-            hCtx.fillStyle = "#fff";
+            // Center cursor
+            hCtx.fillStyle = "var(--accent-teal)";
             hCtx.beginPath();
-            hCtx.moveTo(cx, 25);
-            hCtx.lineTo(cx - 5, 18);
-            hCtx.lineTo(cx + 5, 18);
+            hCtx.moveTo(cx, 30); hCtx.lineTo(cx - 5, 23); hCtx.lineTo(cx + 5, 23);
             hCtx.fill();
 
-            // Level 4: Draw Vertical Altitude Speed Indicator (Right tape)
-            hCtx.fillStyle = "#020408";
-            hCtx.fillRect(hCanvas.width - 55, 30, 55, hCanvas.height - 30);
-            hCtx.strokeStyle = "rgba(0, 240, 255, 0.3)";
+            // Layer 4: Vertical Altimeter Tape (Right Side)
+            hCtx.fillStyle = "rgba(2, 3, 10, 0.85)";
+            hCtx.fillRect(hCanvas.width - 65, 30, 65, hCanvas.height - 30);
+            hCtx.strokeStyle = "rgba(0, 180, 216, 0.3)";
             hCtx.beginPath();
-            hCtx.moveTo(hCanvas.width - 55, 30);
-            hCtx.lineTo(hCanvas.width - 55, hCanvas.height);
+            hCtx.moveTo(hCanvas.width - 65, 30); hCtx.lineTo(hCanvas.width - 65, hCanvas.height);
             hCtx.stroke();
 
-            hCtx.fillStyle = "#00f0ff";
-            hCtx.font = "9px monospace";
+            hCtx.fillStyle = "rgba(0, 180, 216, 0.75)";
+            hCtx.font = "8px 'Fira Code', monospace";
             hCtx.textAlign = "left";
-            for (let i = -10; i <= 10; i += 1) {
+            for (let i = -10; i <= 15; i += 1) {
                 const altDiff = (i - altitudeMeters);
-                const yPos = cy + altDiff * -25.0; 
-                if (yPos > 35 && yPos < hCanvas.height - 10) {
+                const yPos = cy + altDiff * -30.0; 
+                if (yPos > 35 && yPos < hCanvas.height - 5) {
+                    hCtx.strokeStyle = "rgba(0, 180, 216, 0.4)";
                     hCtx.beginPath();
-                    hCtx.moveTo(hCanvas.width - 55, yPos);
-                    hCtx.lineTo(hCanvas.width - 48, yPos);
+                    hCtx.moveTo(hCanvas.width - 65, yPos); hCtx.lineTo(hCanvas.width - 57, yPos);
                     hCtx.stroke();
-                    hCtx.fillText(`${i.toFixed(1)}m`, hCanvas.width - 43, yPos + 3);
+                    hCtx.fillText(`${i.toFixed(1)}m`, hCanvas.width - 53, yPos + 3);
                 }
             }
-            // Draw Target Alt marker
-            hCtx.fillStyle = "rgba(0, 240, 255, 0.2)";
-            hCtx.fillRect(hCanvas.width - 55, cy - 8, 55, 16);
-            hCtx.strokeStyle = "#00f0ff";
-            hCtx.strokeRect(hCanvas.width - 55, cy - 8, 55, 16);
-            hCtx.fillStyle = "#fff";
-            hCtx.font = "bold 9px monospace";
-            hCtx.fillText(`${altitudeMeters.toFixed(2)}m`, hCanvas.width - 50, cy + 3);
+            // Floating Box
+            hCtx.fillStyle = "rgba(13, 20, 38, 0.9)";
+            hCtx.fillRect(hCanvas.width - 65, cy - 10, 65, 20);
+            hCtx.strokeStyle = "var(--accent-teal)";
+            hCtx.strokeRect(hCanvas.width - 65, cy - 10, 65, 20);
+            hCtx.fillStyle = "var(--accent-teal)";
+            hCtx.font = "bold 10px 'Fira Code', monospace";
+            hCtx.fillText(`${altitudeMeters.toFixed(2)}m`, hCanvas.width - 60, cy + 4);
 
-            // Level 5: Draw real-time G-Force and VSI dials (SpaceX Specific additions!)
-            hCtx.fillStyle = "#020408";
-            hCtx.fillRect(0, 30, 65, hCanvas.height - 30);
-            hCtx.strokeStyle = "rgba(0, 240, 255, 0.3)";
+            // Layer 5: Mission Diagnostics Dial Overlay (Left Side)
+            hCtx.fillStyle = "rgba(2, 3, 10, 0.85)";
+            hCtx.fillRect(0, 30, 80, hCanvas.height - 30);
+            hCtx.strokeStyle = "rgba(0, 180, 216, 0.3)";
             hCtx.beginPath();
-            hCtx.moveTo(65, 30);
-            hCtx.lineTo(65, hCanvas.height);
+            hCtx.moveTo(80, 30); hCtx.lineTo(80, hCanvas.height);
             hCtx.stroke();
 
-            // Draw G-Force meter text
-            hCtx.fillStyle = "#00f0ff";
-            hCtx.font = "bold 9px monospace";
+            // G-Force Indicator
+            hCtx.fillStyle = "var(--accent-blue)";
+            hCtx.font = "bold 8px 'Fira Code', monospace";
             hCtx.textAlign = "left";
-            hCtx.fillText("G-FORCE", 5, 45);
-            hCtx.fillStyle = (estimatedGForce > 3.0) ? "#ef4444" : "#10b981";
-            hCtx.font = "bold 13px monospace";
-            hCtx.fillText(`${estimatedGForce.toFixed(2)} Gs`, 5, 60);
+            hCtx.fillText("ACCEL Gs", 8, 48);
+            hCtx.fillStyle = (estimatedGForce > 2.5) ? "var(--accent-red)" : "var(--accent-teal)";
+            hCtx.font = "bold 11px 'Fira Code', monospace";
+            hCtx.fillText(`${estimatedGForce.toFixed(2)} Gs`, 8, 62);
 
-            // Draw Vertical Climb rate text (VSI)
-            hCtx.fillStyle = "#00f0ff";
-            hCtx.font = "bold 9px monospace";
-            hCtx.fillText("VSI SINK", 5, 85);
-            hCtx.fillStyle = (climbRate > 0.1) ? "#10b981" : (climbRate < -0.1) ? "#ef4444" : "#64748b";
-            hCtx.font = "bold 11px monospace";
-            hCtx.fillText(`${climbRate > 0 ? "+" : ""}${climbRate.toFixed(2)} m/s`, 5, 100);
+            // Vertical Climb Rate
+            hCtx.fillStyle = "var(--accent-blue)";
+            hCtx.font = "bold 8px 'Fira Code', monospace";
+            hCtx.fillText("VSI VECTOR", 8, 88);
+            hCtx.fillStyle = (climbRate > 0.05) ? "var(--accent-teal)" : (climbRate < -0.05) ? "var(--accent-red)" : "rgba(148, 163, 184, 0.8)";
+            hCtx.font = "bold 10px 'Fira Code', monospace";
+            hCtx.fillText(`${climbRate > 0 ? "+" : ""}${climbRate.toFixed(2)} m/s`, 8, 102);
+
+            // Air Speed Estimate representation
+            hCtx.fillStyle = "var(--accent-blue)";
+            hCtx.font = "bold 8px 'Fira Code', monospace";
+            hCtx.fillText("AIR VELOCITY", 8, 128);
+            hCtx.fillStyle = "var(--accent-teal)";
+            const airSpeed = Math.abs(climbRate * 1.5) + (isFlying ? 3.2 : 0);
+            hCtx.font = "bold 10px 'Fira Code', monospace";
+            hCtx.fillText(`${airSpeed.toFixed(1)} kts`, 8, 142);
 
             requestAnimationFrame(drawGlassCockpitHUD);
         }
 
-        // --- ThreeJS 3D Swarm Simulator Setup ---
+        // --- Next-Gen ThreeJS 3D Swarm Tactical Radar Scene ---
         const simPanel = document.getElementById('simulator-panel');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020408);
-        const camera = new THREE.PerspectiveCamera(60, simPanel.clientWidth / 60, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(simPanel.clientWidth, 60);
+        scene.background = new THREE.Color(0x02030a);
+        
+        // Add futuristic spatial volumetric fog
+        scene.fog = new THREE.FogExp2(0x02030a, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(55, simPanel.clientWidth / 240, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(simPanel.clientWidth, 320);
         simPanel.appendChild(renderer.domElement);
 
-        const gridHelper = new THREE.GridHelper(30, 30, 0x00f0ff, 0x1f2937);
+        // Grid overlay
+        const gridHelper = new THREE.GridHelper(40, 40, 0x00b4d8, 0x0d1426);
+        gridHelper.position.y = -0.5;
         scene.add(gridHelper);
 
-        const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(0, 10, 10);
+        // Interactive particle wind vector cloud representation
+        const particleCount = 120;
+        const particleGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        for(let i=0; i<particleCount*3; i+=3) {
+            positions[i] = (Math.random() - 0.5) * 40;
+            positions[i+1] = Math.random() * 8;
+            positions[i+2] = (Math.random() - 0.5) * 40;
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0x00f5d4,
+            size: 0.15,
+            transparent: true,
+            opacity: 0.45,
+            blending: THREE.AdditiveBlending
+        });
+        const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particleSystem);
+
+        // Blockade Avoidance Obstacle Volumetrics
+        const obstacleGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+        const obstacleMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0054,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+        const obstacleMesh = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
+        obstacleMesh.position.set(2.0, 1.2, -1.0);
+        scene.add(obstacleMesh);
+
+        // Add secondary warning ring around blockade
+        const obstacleRingGeo = new THREE.RingGeometry(1.3, 1.4, 32);
+        const obstacleRingMat = new THREE.MeshBasicMaterial({ color: 0xff0054, side: THREE.DoubleSide });
+        const obstacleRing = new THREE.Mesh(obstacleRingGeo, obstacleRingMat);
+        obstacleRing.rotation.x = Math.PI / 2;
+        obstacleRing.position.copy(obstacleMesh.position);
+        scene.add(obstacleRing);
+
+        // Lights
+        const light = new THREE.PointLight(0xffffff, 1.5, 100);
+        light.position.set(5, 15, 10);
         scene.add(light);
-        const ambientLight = new THREE.AmbientLight(0x404040);
+        const ambientLight = new THREE.AmbientLight(0x1a243d);
         scene.add(ambientLight);
 
-        const createDroneMesh = (color) => {
+        // Helper to construct a beautiful multi-rotor drone 3D representation
+        const createDroneMesh = (primaryColor, glowColor) => {
             const droneGroup = new THREE.Group();
-            const bodyGeo = new THREE.BoxGeometry(0.5, 0.1, 0.5);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3 });
+            
+            // Central aerodynamic fuselage
+            const bodyGeo = new THREE.CylinderGeometry(0.35, 0.45, 0.12, 8);
+            const bodyMat = new THREE.MeshStandardMaterial({ 
+                color: primaryColor, 
+                roughness: 0.1, 
+                metalness: 0.8 
+            });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
             droneGroup.add(body);
 
-            const rotorGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.02, 6);
-            const rotorMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af });
-            const offsets = [[-0.25, 0.06, -0.25], [0.25, 0.06, -0.25], [-0.25, 0.06, 0.25], [0.25, 0.06, 0.25]];
+            // Glowing cockpit lens/sensor ring
+            const lensGeo = new THREE.CylinderGeometry(0.2, 0.25, 0.06, 8);
+            const lensMat = new THREE.MeshBasicMaterial({ color: glowColor });
+            const lens = new THREE.Mesh(lensGeo, lensMat);
+            lens.position.y = 0.08;
+            droneGroup.add(lens);
+
+            // Diagonal Carbon-fiber Arms
+            const armGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.0, 8);
+            const armMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.9 });
+            
+            const arm1 = new THREE.Mesh(armGeo, armMat);
+            arm1.rotation.z = Math.PI / 2;
+            arm1.rotation.y = Math.PI / 4;
+            droneGroup.add(arm1);
+
+            const arm2 = new THREE.Mesh(armGeo, armMat);
+            arm2.rotation.z = Math.PI / 2;
+            arm2.rotation.y = -Math.PI / 4;
+            droneGroup.add(arm2);
+
+            // 4 Rotors & spinning blades
+            const rotorGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.08, 6);
+            const rotorMat = new THREE.MeshStandardMaterial({ color: 0x374151 });
+            const offsets = [
+                [-0.35, 0.06, -0.35], 
+                [0.35, 0.06, -0.35], 
+                [-0.35, 0.06, 0.35], 
+                [0.35, 0.06, 0.35]
+            ];
             droneGroup.rotors = [];
             offsets.forEach(offset => {
                 const rotor = new THREE.Mesh(rotorGeo, rotorMat);
                 rotor.position.set(...offset);
                 droneGroup.add(rotor);
-                droneGroup.rotors.push(rotor);
+
+                const bladeGeo = new THREE.BoxGeometry(0.4, 0.01, 0.04);
+                const bladeMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.8 });
+                const blade = new THREE.Mesh(bladeGeo, bladeMat);
+                blade.position.y = 0.05;
+                rotor.add(blade);
+                droneGroup.rotors.push(blade);
             });
+
+            // Target downward lock lasers
+            const laserGeo = new THREE.CylinderGeometry(0.01, 0.01, 5, 4);
+            const laserMat = new THREE.MeshBasicMaterial({ color: glowColor, transparent: true, opacity: 0.15 });
+            const laser = new THREE.Mesh(laserGeo, laserMat);
+            laser.position.y = -2.5;
+            droneGroup.add(laser);
+
             return droneGroup;
         };
 
-        const leaderDrone = createDroneMesh(0x00f0ff);
+        const leaderDrone = createDroneMesh(0x00b4d8, 0x00f5d4);
         scene.add(leaderDrone);
-        const follower1 = createDroneMesh(0x10b981);
-        const follower2 = createDroneMesh(0x10b981);
+        const follower1 = createDroneMesh(0x0d47a1, 0x00b4d8);
+        const follower2 = createDroneMesh(0x0d47a1, 0x00b4d8);
         scene.add(follower1);
         scene.add(follower2);
 
-        camera.position.set(0, 5, 8);
-        camera.lookAt(0, 0, 0);
+        // Drone Trail Tracks
+        const maxTrailPoints = 150;
+        const createTrailLine = (color) => {
+            const trailGeo = new THREE.BufferGeometry();
+            const trailPositions = new Float32Array(maxTrailPoints * 3);
+            trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+            const trailMat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.65 });
+            const line = new THREE.Line(trailGeo, trailMat);
+            line.pointsArray = [];
+            return line;
+        };
+
+        const leaderTrail = createTrailLine(0x00f5d4);
+        scene.add(leaderTrail);
+
+        function updateTrail(lineMesh, newPos) {
+            const points = lineMesh.pointsArray;
+            points.push(newPos.clone());
+            if (points.length > maxTrailPoints) {
+                points.shift();
+            }
+            const positionAttr = lineMesh.geometry.attributes.position;
+            for (let i = 0; i < maxTrailPoints; i++) {
+                if (i < points.length) {
+                    positionAttr.setXYZ(i, points[i].x, points[i].y, points[i].z);
+                } else {
+                    // Set remainder to the latest point
+                    positionAttr.setXYZ(i, newPos.x, newPos.y, newPos.z);
+                }
+            }
+            positionAttr.needsUpdate = true;
+        }
+
+        // Live Trajectory projected in 3D Arena from drawing board!
+        let drawnPathLine = null;
+        function update3DTrajectoryTrace() {
+            if (flightPathPoints.length < 2) return;
+            
+            if (drawnPathLine) {
+                scene.remove(drawnPathLine);
+            }
+
+            const pathVertices = [];
+            flightPathPoints.forEach(pt => {
+                // Map physical coordinate scaling back onto ThreeJS world
+                pathVertices.push(new THREE.Vector3(pt.x * 2.0, pt.z * 1.5, -pt.y * 2.0));
+            });
+
+            const traceGeometry = new THREE.BufferGeometry().setFromPoints(pathVertices);
+            const traceMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x00f5d4, 
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.8
+            });
+            drawnPathLine = new THREE.Line(traceGeometry, traceMaterial);
+            scene.add(drawnPathLine);
+        }
+
+        camera.position.set(0, 10, 16);
+        camera.lookAt(0, 1.2, 0);
 
         let isFlying = false;
 
-        function animate() {
-            requestAnimationFrame(animate);
+        // Interactive orbital mechanical motion camera rotation loop
+        let cameraTime = 0.0;
+        function animate3DArena() {
+            requestAnimationFrame(animate3DArena);
+            
+            cameraTime += 0.003;
+            // Subtle scenic hover camera rotation
+            camera.position.x = 16 * Math.cos(cameraTime);
+            camera.position.z = 16 * Math.sin(cameraTime);
+            camera.lookAt(0, 1.5, 0);
+
+            // Spin propellers & oscillate hazard lights
             if (isFlying) {
-                leaderDrone.rotors.forEach(r => r.rotation.y += 0.4);
-                follower1.rotors.forEach(r => r.rotation.y += 0.4);
-                follower2.rotors.forEach(r => r.rotation.y += 0.4);
+                leaderDrone.rotors.forEach(r => r.rotation.y += 0.6);
+                follower1.rotors.forEach(r => r.rotation.y += 0.6);
+                follower2.rotors.forEach(r => r.rotation.y += 0.6);
             }
+
+            // Move ambient wind atmospheric particles
+            const positionsArray = particleSystem.geometry.attributes.position.array;
+            for(let i=0; i<positionsArray.length; i+=3) {
+                positionsArray[i+2] += 0.08; // Drift forward
+                if (positionsArray[i+2] > 20) {
+                    positionsArray[i+2] = -20; // reset boundary
+                }
+            }
+            particleSystem.geometry.attributes.position.needsUpdate = true;
+
+            // Spin warning rings around LIDAR obstacle
+            obstacleRing.rotation.z += 0.01;
+
             renderer.render(scene, camera);
         }
-        animate();
+        animate3DArena();
 
-        function triggerAction(action) {
-            socket.emit('telemetry_update', { voice_cmd: action });
-            log(`[CONTROL]: Manual action dispatched: ${action}`);
-        }
+        // Handle panel resizing seamlessly
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                const height = entry.contentRect.height || 320;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            }
+        });
+        resizeObserver.observe(simPanel);
 
-        // --- Laptop Keys Overrides ---
+        // --- Manual Keyboard Override ---
         const keysPressed = {};
         window.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
@@ -1215,9 +1891,9 @@
             if (badge) badge.classList.add('pressed');
 
             if (controlMode !== "KEYBOARD") return;
-            if (e.key === " ") triggerAction("TAKEOFF");
-            if (e.key === "Escape") triggerAction("LAND");
-            if (e.key === "Shift") triggerAction("STOP");
+            if (e.key === " ") { socket.emit('telemetry_update', { voice_cmd: "TAKEOFF" }); log("[KEYBOARD]: Takeoff dispatch sent."); }
+            if (e.key === "Escape") { socket.emit('telemetry_update', { voice_cmd: "LAND" }); log("[KEYBOARD]: Landing dispatch sent."); }
+            if (e.key === "Shift") { socket.emit('telemetry_update', { voice_cmd: "STOP" }); log("[KEYBOARD]: Emergency STOP broadcast."); }
         });
         window.addEventListener('keyup', (e) => {
             const key = e.key.toLowerCase();
@@ -1227,6 +1903,7 @@
             if (badge) badge.classList.remove('pressed');
         });
 
+        let keyboardVectors = { vx: 0.0, vy: 0.0, vz: 0.0, vyaw: 0.0 };
         function updateKeyboardVectors() {
             if (controlMode !== "KEYBOARD") {
                 keyboardVectors = { vx: 0.0, vy: 0.0, vz: 0.0, vyaw: 0.0 };
@@ -1234,76 +1911,126 @@
             }
             let vx = 0.0, vy = 0.0, vz = 0.0, vyaw = 0.0;
             
-            if (keysPressed['w']) vx = 0.5;
-            if (keysPressed['s']) vx = -0.5;
-            if (keysPressed['a']) vy = -0.5;
-            if (keysPressed['d']) vy = 0.5;
+            if (keysPressed['w']) vx = 0.6;
+            if (keysPressed['s']) vx = -0.6;
+            if (keysPressed['a']) vy = -0.6;
+            if (keysPressed['d']) vy = 0.6;
 
-            if (keysPressed['arrowup']) vz = 0.4;
-            if (keysPressed['arrowdown']) vz = -0.4;
-            if (keysPressed['arrowleft']) vyaw = -0.5;
-            if (keysPressed['arrowright']) vyaw = 0.5;
+            if (keysPressed['arrowup']) vz = 0.5;
+            if (keysPressed['arrowdown']) vz = -0.5;
+            if (keysPressed['arrowleft']) vyaw = -0.6;
+            if (keysPressed['arrowright']) vyaw = 0.6;
 
             keyboardVectors = { vx, vy, vz, vyaw };
         }
 
-        // --- Mobile Tactile Key Buttons Overrides ---
+        // --- Mobile Tactile Stick Controls ---
         let mobileKeyVectors = { vx: 0.0, vy: 0.0, vz: 0.0, vyaw: 0.0 };
-        function setPhoneKey(axis, val) {
-            if (controlMode !== "TOUCH") return;
-            mobileKeyVectors[axis] = val;
-        }
-        function clearPhoneKey(axis) {
-            mobileKeyVectors[axis] = 0.0;
-        }
+        function setupVirtualJoysticks() {
+            const leftJoystick = document.getElementById('left-joystick');
+            const leftKnob = document.getElementById('left-knob');
+            const rightJoystick = document.getElementById('right-joystick');
+            const rightKnob = document.getElementById('right-knob');
 
-        // --- Geolocation GPS tracking ---
+            function handleJoystickDrag(joystick, knob, onMove) {
+                let dragStart = null;
+                const limit = 35; // maximum pixels of drag displacement
+
+                function onStart(e) {
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
+                    dragStart = { x: clientX, y: clientY };
+                    knob.style.transition = 'none';
+                    e.preventDefault();
+                }
+
+                function onDrag(e) {
+                    if (!dragStart) return;
+                    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                    
+                    let dx = clientX - dragStart.x;
+                    let dy = clientY - dragStart.y;
+                    
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > limit) {
+                        dx = (dx / dist) * limit;
+                        dy = (dy / dist) * limit;
+                    }
+
+                    knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                    onMove(dx / limit, dy / limit);
+                }
+
+                function onEnd() {
+                    dragStart = null;
+                    knob.style.transition = 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+                    knob.style.transform = 'translate(0px, 0px)';
+                    onMove(0, 0);
+                }
+
+                joystick.addEventListener('mousedown', onStart);
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', onEnd);
+
+                joystick.addEventListener('touchstart', onStart, { passive: false });
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('touchend', onEnd);
+            }
+
+            // Left Joystick: Up/Down is Altitude (vz), Left/Right is Yaw (vyaw)
+            handleJoystickDrag(leftJoystick, leftKnob, (x, y) => {
+                mobileKeyVectors.vyaw = x * 0.6;
+                mobileKeyVectors.vz = -y * 0.6; // negative dy represents upward altitude
+            });
+
+            // Right Joystick: Up/Down is Pitch (vx), Left/Right is Roll (vy)
+            handleJoystickDrag(rightJoystick, rightKnob, (x, y) => {
+                mobileKeyVectors.vy = x * 0.6;
+                mobileKeyVectors.vx = -y * 0.6; // negative dy represents forward pitch
+            });
+        }
+        setupVirtualJoysticks();
+
+        // --- Geolocation ---
         let gpsWatchId = null;
         let originalGPSPosition = null;
 
-        // Visual GPS Satellite Constellation Polar-Plot HUD Tracker
         function drawGpsConstellationRadar(ctxLoc, x, y, radius) {
             ctxLoc.save();
-            ctxLoc.strokeStyle = "rgba(0, 240, 255, 0.25)";
+            ctxLoc.strokeStyle = "rgba(0, 245, 212, 0.3)";
             ctxLoc.lineWidth = 1;
             
-            // Draw radar concentric circles
             ctxLoc.beginPath();
             ctxLoc.arc(x, y, radius, 0, 2 * Math.PI);
             ctxLoc.arc(x, y, radius * 0.6, 0, 2 * Math.PI);
-            ctxLoc.arc(x, y, radius * 0.3, 0, 2 * Math.PI);
             ctxLoc.stroke();
 
-            // Draw radar crosshairs
             ctxLoc.beginPath();
             ctxLoc.moveTo(x - radius, y); ctxLoc.lineTo(x + radius, y);
             ctxLoc.moveTo(x, y - radius); ctxLoc.lineTo(x, y + radius);
             ctxLoc.stroke();
 
-            // Draw 4 simulated orbiting GPS Satellites
-            const t = Date.now() / 1000.0;
+            const t = Date.now() / 1200.0;
             const satOffsets = [
-                { id: "G05", speed: 0.15, radiusFactor: 0.8 },
-                { id: "E12", speed: -0.22, radiusFactor: 0.5 },
-                { id: "R19", speed: 0.08, radiusFactor: 0.7 },
-                { id: "C31", speed: -0.11, radiusFactor: 0.4 }
+                { id: "G05", speed: 0.12, r: 0.8 },
+                { id: "E12", speed: -0.18, r: 0.5 },
+                { id: "R19", speed: 0.07, r: 0.7 }
             ];
 
             satOffsets.forEach(sat => {
                 const angle = t * sat.speed;
-                const satX = x + radius * sat.radiusFactor * Math.cos(angle);
-                const satY = y + radius * sat.radiusFactor * Math.sin(angle);
+                const satX = x + radius * sat.r * Math.cos(angle);
+                const satY = y + radius * sat.r * Math.sin(angle);
 
-                // Draw Satellite dot
-                ctxLoc.fillStyle = "#00f0ff";
+                ctxLoc.fillStyle = "var(--accent-teal)";
                 ctxLoc.beginPath();
-                ctxLoc.arc(satX, satY, 3, 0, 2 * Math.PI);
+                ctxLoc.arc(satX, satY, 2.5, 0, 2 * Math.PI);
                 ctxLoc.fill();
 
-                // Draw text label
-                ctxLoc.fillStyle = "rgba(0, 240, 255, 0.6)";
-                ctxLoc.font = "7px monospace";
-                ctxLoc.fillText(sat.id, satX + 5, satY + 2);
+                ctxLoc.fillStyle = "rgba(0, 245, 212, 0.7)";
+                ctxLoc.font = "6px 'Fira Code', monospace";
+                ctxLoc.fillText(sat.id, satX + 4, satY + 2);
             });
 
             ctxLoc.restore();
@@ -1321,8 +2048,7 @@
                             const dx = (position.coords.longitude - originalGPSPosition.longitude) * 111320 * Math.cos(position.coords.latitude * Math.PI / 180);
                             const dy = (position.coords.latitude - originalGPSPosition.latitude) * 110540;
                             
-                            log(`[GPS]: update lat=${position.coords.latitude.toFixed(5)}, lon=${position.coords.longitude.toFixed(5)}. Rel dx=${dx.toFixed(2)}m, dy=${dy.toFixed(2)}m`);
-                            
+                            log(`[GPS UPDATE]: lat=${position.coords.latitude.toFixed(5)}, lon=${position.coords.longitude.toFixed(5)}`);
                             socket.emit('telemetry_update', {
                                 gps_data: { dx: dx, dy: dy, lat: position.coords.latitude, lon: position.coords.longitude }
                             });
@@ -1330,9 +2056,10 @@
                         (error) => log(`[GPS ERR]: ${error.message}`),
                         { enableHighAccuracy: true, maximumAge: 1000 }
                     );
-                    gpsBtn.innerText = "Stop GPS Track";
-                    gpsBtn.style.background = "#ef4444";
-                    log("[GPS]: Geolocation broadcast engaged.");
+                    gpsBtn.innerText = "🛰️ Stop GPS Track";
+                    gpsBtn.style.borderColor = "var(--accent-red)";
+                    gpsBtn.style.color = "var(--accent-red)";
+                    log("[GPS]: Geolocation uplink secured.");
                 } else {
                     log("[GPS ERR]: Geolocation unsupported.");
                 }
@@ -1340,13 +2067,14 @@
                 navigator.geolocation.clearWatch(gpsWatchId);
                 gpsWatchId = null;
                 originalGPSPosition = null;
-                gpsBtn.innerText = "GPS Track Location";
-                gpsBtn.style.background = "#a855f7";
-                log("[GPS]: Geolocation broadcast suspended.");
+                gpsBtn.innerText = "🛰️ GPS Sat-Track";
+                gpsBtn.style.borderColor = "var(--accent-orange)";
+                gpsBtn.style.color = "var(--accent-orange)";
+                log("[GPS]: Geolocation uplink suspended.");
             }
         }
 
-        // --- Local Speech Capturing & Tuning ---
+        // --- Speech Capture ---
         let lastVoiceCommand = "NONE";
         let activeSpeedScale = 1.0;
         let activeHeightOffset = 0.0;
@@ -1358,7 +2086,7 @@
             rec.lang = 'en-US';
             rec.onresult = function(event) {
                 const text = event.results[event.results.length - 1][0].transcript.toLowerCase();
-                log("Local Speech: " + text);
+                log("Local Voice Capture: " + text);
                 
                 if (text.includes("authorize drone") && activeWizardStep === "VOICE_SCAN") {
                     lastVoiceCommand = "SECURE_AUTH";
@@ -1367,62 +2095,32 @@
 
                 if (text.includes("speed fast") || text.includes("accelerate")) {
                     activeSpeedScale = 1.8;
-                    document.getElementById('speed-scale-txt').innerText = "1.8x (Fast)";
                 } else if (text.includes("speed slow") || text.includes("slow down")) {
                     activeSpeedScale = 0.5;
-                    document.getElementById('speed-scale-txt').innerText = "0.5x (Slow)";
                 } else if (text.includes("speed normal") || text.includes("normalize")) {
                     activeSpeedScale = 1.0;
-                    document.getElementById('speed-scale-txt').innerText = "1.0x (Normal)";
                 }
 
-                // Voice-guided ActiveTrack triggers
-                if (text.includes("track person")) setActiveTrackTarget("CANCEL");
-                else if (text.includes("track ball")) setActiveTrackTarget("ball");
-                else if (text.includes("track backpack")) setActiveTrackTarget("backpack");
-                else if (text.includes("track dog")) setActiveTrackTarget("dog");
-                else if (text.includes("track cat")) setActiveTrackTarget("cat");
-                else if (text.includes("track bicycle")) setActiveTrackTarget("bicycle");
-                else if (text.includes("cancel tracking")) setActiveTrackTarget("CANCEL");
-
-                // Voice-guided formation shift triggers
+                // Voice formations
                 if (text.includes("formation line")) setSwarmFormation("LINE");
-                else if (text.includes("formation orbit") || text.includes("formation circle")) setSwarmFormation("ORBIT");
-                else if (text.includes("formation v shape") || text.includes("formation normal")) setSwarmFormation("V-SHAPE");
+                else if (text.includes("formation orbit")) setSwarmFormation("ORBIT");
+                else if (text.includes("formation normal")) setSwarmFormation("V-SHAPE");
 
                 if (text.includes("take off") || text.includes("fly")) lastVoiceCommand = "TAKEOFF";
                 else if (text.includes("land")) lastVoiceCommand = "LAND";
-                else if (text.includes("stop") || text.includes("hover") || text.includes("panic")) lastVoiceCommand = "STOP";
-                else if (text.includes("follow")) lastVoiceCommand = "START_FOLLOW";
-                else if (text.includes("complete") || text.includes("delivered")) lastVoiceCommand = "HANDOFF_DONE";
-                
-                // Tricks triggers
-                else if (text.includes("front flip")) lastVoiceCommand = "FRONT_FLIP";
-                else if (text.includes("back flip")) lastVoiceCommand = "BACK_FLIP";
-                else if (text.includes("flip left")) lastVoiceCommand = "LEFT_FLIP";
-                else if (text.includes("flip right")) lastVoiceCommand = "RIGHT_FLIP";
-                else if (text.includes("tornado")) lastVoiceCommand = "TORNADO";
-                else if (text.includes("dance") || text.includes("wobble")) lastVoiceCommand = "DANCE";
-                else if (text.includes("glide")) lastVoiceCommand = "GLIDE";
-                else if (text.includes("orbit carousel")) lastVoiceCommand = "ORBIT";
-                else if (text.includes("selfie")) lastVoiceCommand = "SELFIE";
-                else if (text.includes("find") || text.includes("chirp")) lastVoiceCommand = "FIND";
-                else if (text.includes("immelmann")) lastVoiceCommand = "IMMELMANN";
-                else if (text.includes("split s")) lastVoiceCommand = "SPLITS";
-                else if (text.includes("barrel roll")) lastVoiceCommand = "BARRELROLL";
-                else if (text.includes("chandelle")) lastVoiceCommand = "CHANDELLE";
+                else if (text.includes("stop") || text.includes("hover")) lastVoiceCommand = "STOP";
             };
             rec.start();
         }
 
-        // --- MediaPipe Framework Initializations ---
+        // --- MediaPipe Hand & Face Tracking ---
         let detectedGesture = "NONE";
         let eyeLandmarksData = null;
 
         const faceMesh = new FaceMesh({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
         });
-        faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.6 });
+        faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.65 });
         faceMesh.onResults((results) => {
             if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
                 eyeLandmarksData = results.multiFaceLandmarks[0];
@@ -1438,7 +2136,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             if (phoneRole === "PILOT") {
-                applySpectralFilters(webcam); // Apply real-time Night-Vision/Thermal pixel shaders!
+                applySpectralFilters(webcam); 
             }
             
             detectedGesture = "NONE";
@@ -1446,9 +2144,9 @@
                 if (phoneRole === "PILOT") {
                     for (const landmarks of results.multiHandLandmarks) {
                         for (const landmark of landmarks) {
-                            ctx.fillStyle = "#00f0ff";
+                            ctx.fillStyle = "var(--accent-blue)";
                             ctx.beginPath();
-                            ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 2.5, 0, 2 * Math.PI);
+                            ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 3, 0, 2 * Math.PI);
                             ctx.fill();
                         }
                     }
@@ -1470,25 +2168,21 @@
                         if (lms[tip].y < lms[tip-2].y) f.push(1); else f.push(0);
                     }
 
-                    // Map Mute ASL Sign Language Gestures
                     if (f[0] === 1 && f[1] === 1 && f[2] === 0 && f[3] === 0 && f[4] === 1) {
                         detectedGesture = "ASL_ILY"; 
-                        document.getElementById('gesture-txt').innerText = "ASL: I-LOVE-YOU";
+                        document.getElementById('gesture-txt').innerText = "ASL_ILY";
                     } else if (f[0] === 0 && f[1] === 1 && f[2] === 1 && f[3] === 0 && f[4] === 0) {
                         detectedGesture = "ASL_PEACE"; 
-                        document.getElementById('gesture-txt').innerText = "ASL: PEACE/V";
+                        document.getElementById('gesture-txt').innerText = "ASL_PEACE";
                     } else if (f[0] === 1 && f[1] === 0 && f[2] === 0 && f[3] === 0 && f[4] === 1) {
                         detectedGesture = "ASL_Y"; 
-                        document.getElementById('gesture-txt').innerText = "ASL: SHAKA/Y";
+                        document.getElementById('gesture-txt').innerText = "ASL_Y";
                     } else if (f[0] === 1 && f[1] === 0 && f[2] === 0 && f[3] === 0 && f[4] === 0) {
                         detectedGesture = "ASL_THUMBS_UP"; 
-                        document.getElementById('gesture-txt').innerText = "ASL: THUMBS-UP";
-                    } else if (f[0] === 0 && f[1] === 0 && f[2] === 1 && f[3] === 1 && f[4] === 1) {
-                        detectedGesture = "ASL_OK"; 
-                        document.getElementById('gesture-txt').innerText = "ASL: OK";
+                        document.getElementById('gesture-txt').innerText = "THUMBS_UP";
                     } else if (f[0] === 1 && f[1] === 1 && f[2] === 1 && f[3] === 1 && f[4] === 1) {
                         detectedGesture = "ASL_WAIT";
-                        document.getElementById('gesture-txt').innerText = "ASL: WAIT/HOLD";
+                        document.getElementById('gesture-txt').innerText = "WAIT/HOLD";
                     } else if (f.reduce((a,b)=>a+b, 0) === 5) {
                         detectedGesture = "OPEN_PALM";
                         document.getElementById('gesture-txt').innerText = "OPEN PALM";
@@ -1500,7 +2194,7 @@
             }
         });
 
-        // Send telemetry updates
+        // Loop to broadcast high-integrity telemetry matrices to server
         setInterval(() => {
             updateKeyboardVectors();
             
@@ -1513,15 +2207,13 @@
                 activeVoice = lastVoiceCommand;
             } else if (controlMode === "KEYBOARD") {
                 activeVectors = keyboardVectors;
-                activeVoice = manualActionTrigger;
             } else if (controlMode === "TOUCH") {
                 activeVectors = mobileKeyVectors;
-                activeVoice = manualActionTrigger;
             }
 
             if (socket.connected && (phoneRole === "PILOT" || (phoneRole === "DRONE" && callActive))) {
                 socket.emit('telemetry_update', {
-                    gesture: detectedGesture,
+                    gesture: activeGesture,
                     morse_cmd: "NONE",
                     voice_cmd: activeVoice,
                     body_state: (activeVectors.vx !== 0 || activeVectors.vy !== 0 || activeVectors.vz !== 0 || activeVectors.vyaw !== 0) ? "MOVING" : "STOPPED",
@@ -1532,14 +2224,13 @@
                     formation_cmd: selectedFormation,
                     tracking_target_cmd: selectedTrackTarget
                 });
-                
                 lastVoiceCommand = "NONE";
-                manualActionTrigger = "NONE";
             }
         }, 100);
 
         let activeWizardStep = "WELCOME";
 
+        // Listen for digital-twin telemetry downlinks
         socket.on('drone_telemetry', (data) => {
             const secBadge = document.getElementById('sec-badge');
             if (data.security_authorized) {
@@ -1550,7 +2241,7 @@
                 secBadge.className = "status-badge";
             }
             
-            // --- Interactive Setup Wizard Updates ---
+            // Setup wizard triggers
             if (data.wizard) {
                 activeWizardStep = data.wizard.step;
                 document.getElementById('wizard-prompt-txt').innerText = data.wizard.instruction;
@@ -1564,7 +2255,7 @@
                     document.getElementById('dot-face').className = "wizard-dot active";
                 } else if (activeWizardStep === "VOICE_SCAN") {
                     document.getElementById('dot-welcome').className = "wizard-dot completed";
-                    document.getElementById('dot-face').className = "workspace-dot completed";
+                    document.getElementById('dot-face').className = "wizard-dot completed";
                     document.getElementById('dot-voice').className = "wizard-dot active";
                 } else if (activeWizardStep === "GESTURE_CHECK") {
                     document.getElementById('dot-welcome').className = "wizard-dot completed";
@@ -1576,28 +2267,20 @@
                     document.getElementById('dot-face').className = "wizard-dot completed";
                     document.getElementById('dot-voice').className = "wizard-dot completed";
                     document.getElementById('dot-gesture').className = "wizard-dot completed";
-                    if (window.speechSynthesis) {
-                        const welcomeUtterance = new SpeechSynthesisUtterance("Calibration Complete! Ready to fly!");
-                        window.speechSynthesis.speak(welcomeUtterance);
-                    }
                 }
             }
 
-            // Sync selectors dynamically from server updates
+            // Sync selections
             if (data.active_formation && data.active_formation !== selectedFormation) {
                 selectedFormation = data.active_formation;
-                document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
-                    if (btn.id.startsWith('form-')) btn.classList.remove('active');
-                });
+                document.querySelectorAll('#form-v, #form-line, #form-orbit').forEach(btn => btn.classList.remove('active'));
                 const btnId = `form-${selectedFormation.replace('-','').toLowerCase()}`;
                 const btn = document.getElementById(btnId);
                 if (btn) btn.classList.add('active');
             }
             if (data.tracking_target && data.tracking_target !== selectedTrackTarget) {
                 selectedTrackTarget = data.tracking_target;
-                document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
-                    if (btn.id.startsWith('track-')) btn.classList.remove('active');
-                });
+                document.querySelectorAll('#track-cancel, #track-ball, #track-backpack').forEach(btn => btn.classList.remove('active'));
                 const btnId = `track-${selectedTrackTarget.toLowerCase()}`;
                 const btn = document.getElementById(btnId);
                 if (btn) btn.classList.add('active');
@@ -1608,34 +2291,43 @@
             const leader = data.leader;
             isFlying = leader.is_flying;
             
-            // --- Sync Avionics Glass Cockpit HUD metrics ---
+            // Align Glass Cockpit angles with telemetry metrics
             altitudeMeters = leader.position.z;
             headingYaw = leader.yaw;
-            pitchOffset = leader.position.x * -10.0; // map displacement to pitch ladder
-            rollAngle = leader.yaw * 0.5;            // map rotation to banking roll
+            pitchOffset = leader.position.x * -10.0; 
+            rollAngle = leader.yaw * 0.55;            
 
-            // Sync battery meter
             const bTxt = document.getElementById('battery-txt');
             bTxt.innerText = `${leader.battery}%`;
             if (leader.battery <= 20) {
-                bTxt.style.color = "#ef4444";
-                bTxt.style.fontWeight = "bold";
+                bTxt.style.color = "var(--accent-red)";
+                bTxt.style.textShadow = "0 0 10px var(--accent-red)";
             } else {
-                bTxt.style.color = "#10b981";
+                bTxt.style.color = "var(--accent-teal)";
+                bTxt.style.textShadow = "0 0 5px rgba(0, 245, 212, 0.3)";
             }
 
-            leaderDrone.position.set(leader.position.x * 2.0, leader.position.z * 1.5, -leader.position.y * 2.0);
+            // Smoothly lerp 3D objects in the ThreeJS Arena
+            const targetX = leader.position.x * 2.2;
+            const targetY = leader.position.z * 1.5;
+            const targetZ = -leader.position.y * 2.2;
+
+            leaderDrone.position.set(targetX, targetY, targetZ);
             leaderDrone.rotation.y = leader.yaw;
+
+            // Generate spatial trailing particle ribbon effect
+            const leaderPosVec = new THREE.Vector3(targetX, targetY, targetZ);
+            updateTrail(leaderTrail, leaderPosVec);
 
             const follower1Data = data.swarm[2];
             const follower2Data = data.swarm[3];
             
             if (follower1Data) {
-                follower1.position.set(follower1Data.position.x * 2.0, follower1Data.position.z * 1.5, -follower1Data.position.y * 2.0);
+                follower1.position.set(follower1Data.position.x * 2.2, follower1Data.position.z * 1.5, -follower1Data.position.y * 2.2);
                 follower1.rotation.y = follower1Data.yaw;
             }
             if (follower2Data) {
-                follower2.position.set(follower2Data.position.x * 2.0, follower2Data.position.z * 1.5, -follower2Data.position.y * 2.0);
+                follower2.position.set(follower2Data.position.x * 2.2, follower2Data.position.z * 1.5, -follower2Data.position.y * 2.2);
                 follower2.rotation.y = follower2Data.yaw;
             }
         });
@@ -1652,7 +2344,8 @@
                 height: 480
             });
             cameraHelper.start();
-            log("[SENSORS]: Local pilot webcam feed initialized.");
+            log("[SENSORS]: Multi-spectral visual cameras initialized.");
+            playSciFiBeep("success");
         });
 
         function log(msg) {
@@ -1660,14 +2353,14 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        // Draw the GPS Satellite polar-plot radar overlay directly in HUD panel
-        const hudCanvas = document.getElementById('hud_canvas');
-        const hudCtx = hudCanvas.getContext('2d');
+        // Draw active satellite radar constellation inside Glass Cockpit
+        const hudCanvasElement = document.getElementById('hud_canvas');
+        const hudCtxContext = hudCanvasElement.getContext('2d');
         setInterval(() => {
-            if (hudCanvas) {
-                drawGpsConstellationRadar(hudCtx, 35, 155, 30); // Draw on bottom-left corner of HUD
+            if (hudCanvasElement) {
+                drawGpsConstellationRadar(hudCtxContext, 45, 185, 32); 
             }
         }, 100);
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2685a98096ce9e4',t:'MTc4NTk1OTY2OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
