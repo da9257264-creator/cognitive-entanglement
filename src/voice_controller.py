@@ -39,6 +39,7 @@ class VoiceController:
             "formation line": "FORMATION_LINE", "formation orbit": "FORMATION_ORBIT", "formation normal": "FORMATION_V",
             "immelmann": "IMMELMANN", "split s": "SPLITS", "barrel roll": "BARRELROLL", "chandelle": "CHANDELLE",
             "orbit satellite": "ORBIT_SAT", "sync iss": "ORBIT_SAT", "sync satellite": "ORBIT_SAT",
+            "scan obstacles": "ROOM_SCAN", "calibrate room": "ROOM_SCAN",
             
             # --- Spanish commands (Español) ---
             "despegar": "TAKEOFF", "vuela": "TAKEOFF", "aterrizar": "LAND", "para": "STOP", "espera": "WAIT",

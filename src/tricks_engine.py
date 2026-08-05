@@ -46,6 +46,8 @@ class TricksEngine:
             self._execute_chandelle()
         elif trick_name == "space_station_orbit":
             self._execute_space_station_orbit()
+        elif trick_name == "room_scan":
+            self._execute_room_scan()
         else:
             self.logger.warning(f"Unrecognized trick profile: {trick_name}")
 
@@ -158,18 +160,25 @@ class TricksEngine:
         self.drone.stop()
 
     def _execute_space_station_orbit(self):
-        """Dynamic Keplerian Orbit Sync around virtual Space Station target (JPL Spec)."""
         self.logger.info("AEROBATICS: Commencing SPACE STATION ORBIT SYNC.")
         start_time = time.time()
         omega = 1.2
         radius = 2.5
         while time.time() - start_time < 6.0:
             elapsed = time.time() - start_time
-            # Multi-axis sinusoidal orbital equation representing elliptical Keplerian drift
             vx = -radius * omega * math.sin(omega * elapsed)
             vy = radius * omega * math.cos(omega * elapsed)
-            vz = 0.3 * math.cos(2 * omega * elapsed) # Stack vertical oscillation (elliptical orbit!)
+            vz = 0.3 * math.cos(2 * omega * elapsed)
             vyaw = omega
             self.drone.set_velocities(vx, vy, vz, vyaw)
+            time.sleep(0.1)
+        self.drone.stop()
+
+    def _execute_room_scan(self):
+        """Autonomous 360-degree rotational room safety scan."""
+        self.logger.info("AEROBATICS: Commencing AUTONOMOUS 360° ROOM SCAN.")
+        start_time = time.time()
+        while time.time() - start_time < 4.0: # time to rotate 360 degrees (2*pi / 1.5)
+            self.drone.set_velocities(0.0, 0.0, 0.0, 1.5) # Yaw slowly at 1.5 rad/s
             time.sleep(0.1)
         self.drone.stop()
