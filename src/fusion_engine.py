@@ -1,5 +1,6 @@
 import time
 import logging
+
 from src.security_manager import SecurityManager
 from src.emotion_engine import EmotionEngine
 from src.swarm_controller import SwarmController
@@ -10,6 +11,7 @@ from src.enrollment_wizard import EnrollmentWizard
 from src.object_tracker import ObjectTracker
 from src.audio_dsp_filter import AudioDspFilter
 from src.wind_compensator import WindCompensator
+
 
 class FusionEngine:
     def __init__(self, drone_controller, config):
@@ -39,7 +41,7 @@ class FusionEngine:
         
         # Virtual Geofence boundary
         self.geofence_horizontal_max = 12.0 
-        self.geofence_altitude_max = 3.5     
+        self.geofence_altitude_max = 3.5    
         
         # Draw-to-Fly coordinate tracking queue
         self.draw_flight_queue = []
