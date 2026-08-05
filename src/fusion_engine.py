@@ -8,6 +8,8 @@ from src.voice_biometrics import VoiceBiometrics
 from src.tricks_engine import TricksEngine
 from src.enrollment_wizard import EnrollmentWizard
 from src.object_tracker import ObjectTracker
+from src.audio_dsp_filter import AudioDspFilter
+from src.wind_compensator import WindCompensator
 
 class FusionEngine:
     def __init__(self, drone_controller, config):
@@ -27,6 +29,10 @@ class FusionEngine:
         self.tricks = TricksEngine(self.drone)
         self.wizard = EnrollmentWizard()
         self.object_tracker = ObjectTracker()
+        
+        # New advanced aerospace modules
+        self.dsp_filter = AudioDspFilter()
+        self.wind_compensator = WindCompensator()
         
         self.authorized = not config["security"]["biometrics_enabled"]
         self.voice_authorized = not config["security"]["voice_biometrics_enabled"]
@@ -79,23 +85,19 @@ class FusionEngine:
             self.last_pilot_detection_time = current_time
 
         # Simulate gradual battery drain
-        if current_time - self.last_battery_decay_time > 4.0: # decay 1% every 4s during flight
+        if current_time - self.last_battery_decay_time > 4.0:
             if self.drone.is_flying:
                 self.onboard_battery -= 1.0
                 self.last_battery_decay_time = current_time
 
-        # ----------------------------------------------------
-        # 1. Self-Healing Smart Battery Return-to-Home
-        # ----------------------------------------------------
+        # 1. Low-Battery Auto-RTL Failsafe
         if self.drone.is_flying and self.onboard_battery <= 15.0:
             self.logger.error("BATTERY CRITICAL (<= 15%)! Self-Healing Failsafe triggered. Autonomous Return-to-Home activated.")
             self.system_state = "RETURNING"
             self._execute_home_run()
             return
 
-        # ----------------------------------------------------
-        # 2. Dynamic Swarm Formation Shifting
-        # ----------------------------------------------------
+        # 2. Dynamic Swarm Formations
         if formation_cmd:
             self.swarm.set_formation(formation_cmd)
         elif voice_cmd in ["FORMATION_V", "FORMATION_LINE", "FORMATION_ORBIT"]:
@@ -106,9 +108,11 @@ class FusionEngine:
             }
             self.swarm.set_formation(form_map[voice_cmd])
 
-        # ----------------------------------------------------
-        # 3. Voice-Guided Active Object Tracking
-        # ----------------------------------------------------
+        # 3. Audio DSP Prop-Noise Band-Stop Filtering
+        if audio_raw:
+            audio_raw = self.dsp_filter.denoise_audio_chunk(audio_raw)
+
+        # 4. Voice-Guided Active Object Tracking
         if tracking_target_cmd:
             if tracking_target_cmd == "CANCEL":
                 self.object_tracker.cancel_tracking()
@@ -121,9 +125,7 @@ class FusionEngine:
                 target_class = voice_cmd.replace("TRACK_", "").lower()
                 self.object_tracker.set_target(target_class)
 
-        # ----------------------------------------------------
-        # 4. Interactive Enrollment Wizard (Easy setup)
-        # ----------------------------------------------------
+        # 5. Interactive Enrollment Wizard (Easy setup)
         if self.wizard.current_step != "READY" and self.config["security"]["biometrics_enabled"]:
             if self.wizard.current_step == "WELCOME" and (gesture != "NONE" or voice_cmd != "NONE"):
                 self.wizard.advance_step("START")
@@ -144,7 +146,7 @@ class FusionEngine:
             return
 
         # ----------------------------------------------------
-        # 5. Emergency Panics & Wait Overrides
+        # 6. Emergency Panics & Wait Overrides
         # ----------------------------------------------------
         is_emergency = (voice_cmd in ["PANIC", "KILL", "CRASH", "EMERGENCY"]) or (morse_cmd == "SAFETY_STOP") or (gesture == "CROSS_HANDS") or (voice_cmd == "STOP")
         if is_emergency:
@@ -163,7 +165,7 @@ class FusionEngine:
             return
 
         # ----------------------------------------------------
-        # 6. Fallen-Pilot Recovery (Dead-Man's Switch)
+        # 7. Fallen-Pilot Recovery (Dead-Man's Switch)
         # ----------------------------------------------------
         if self.drone.is_flying and (current_time - self.last_pilot_detection_time > self.dead_man_timeout):
             self.logger.error(f"Fallen-Pilot Failsafe! No operator detected. Landing drone safely.")
@@ -173,7 +175,7 @@ class FusionEngine:
             return
 
         # ----------------------------------------------------
-        # 7. Draw-To-Fly curves pathing
+        # 8. Draw-To-Fly curves pathing
         # ----------------------------------------------------
         if draw_coords:
             self.draw_flight_queue = draw_coords
@@ -195,7 +197,7 @@ class FusionEngine:
             return
 
         # ----------------------------------------------------
-        # 8. Multi-Phone GPS Tracking
+        # 9. Multi-Phone GPS Tracking
         # ----------------------------------------------------
         if gps_data:
             self.tracked_phone_gps = gps_data
@@ -207,7 +209,7 @@ class FusionEngine:
                 return
 
         # ----------------------------------------------------
-        # 9. Expression-Based Behavioral Modulators
+        # 10. Expression-Based Behavioral Modulators
         # ----------------------------------------------------
         safety_scale = 1.0
         if face_landmarks:
@@ -217,7 +219,7 @@ class FusionEngine:
                 self.tricks.execute_trick("victory_wobble")
 
         # ----------------------------------------------------
-        # 10. Advanced Aerial Tricks (including Selfie & Finder)
+        # 11. Advanced Aerial Tricks (including Selfie & Finder)
         # ----------------------------------------------------
         if morse_cmd in self.MORSE_TRICKS_MAP:
             self.tricks.execute_trick(self.MORSE_TRICKS_MAP[morse_cmd])
@@ -240,7 +242,7 @@ class FusionEngine:
             return
 
         # ----------------------------------------------------
-        # 11. Basic Controls & Deaf-Mute Signs
+        # 12. Basic Controls & Deaf-Mute Signs
         # ----------------------------------------------------
         is_takeoff = (voice_cmd == "TAKEOFF") or (gesture == "ASL_PEACE") or (gesture == "POINTING_UP" and self.system_state == "IDLE")
         is_land = (voice_cmd == "LAND") or (gesture == "ASL_OK") or (gesture == "FIST")
@@ -274,7 +276,7 @@ class FusionEngine:
             self.drone.stop()
 
         # ----------------------------------------------------
-        # 12. Active Translation Loop with Onboard ActiveTrack
+        # 13. Active Translation Loop with Onboard ActiveTrack
         # ----------------------------------------------------
         if self.system_state in ["FOLLOW", "MANUAL"]:
             body_vectors["vz"] += voice_height_offset
@@ -293,6 +295,18 @@ class FusionEngine:
                 if frame is not None:
                     block_data = self.avoidance.sense_blockades(frame)
                 
+                # 🚑 Predictive Crash Avoidance (Kinematic Time-To-Collision evaluation):
+                # If approaching a front blockade too fast, trigger immediate emergency braking!
+                if block_data["front"] > 0.4 and body_vectors["vx"] > 0.2:
+                    current_velocity = body_vectors["vx"]
+                    proximity_distance = (1.0 - block_data["front"]) * 2.0 # simulated proximity distance in meters
+                    time_to_collision = proximity_distance / (current_velocity + 1e-6)
+                    
+                    if time_to_collision < 0.8: # Under 0.8 seconds to crash
+                        self.logger.error(f"[SAFETY SHIELD]: Predictive Crash Alert! TTC: {time_to_collision:.2f}s. Activating Emergency Brake.")
+                        body_vectors["vx"] = -0.4 # Force rapid reverse deceleration!
+                        body_vectors["vz"] = 0.3  # Gain height immediately!
+                
                 safe_vectors = self.avoidance.compute_safe_vectors(block_data, body_vectors)
                 
                 # Apply speed factors
@@ -300,6 +314,16 @@ class FusionEngine:
                 target_vy = safe_vectors["vy"] * voice_speed_scale
                 target_vz = safe_vectors["vz"]
                 target_vyaw = safe_vectors["vyaw"]
+                
+                # 🌪️ Active Wind Gust ADRC Compensation:
+                # Modulates commanded vectors using estimated physical displacement drift
+                simulated_imu_drift = {"dx": target_vx * 0.9, "dy": target_vy * 0.9} # Simulate minor outdoor wind drag
+                safe_vectors_adrc = self.wind_compensator.estimate_and_compensate(
+                    {"vx": target_vx, "vy": target_vy, "vz": target_vz},
+                    simulated_imu_drift
+                )
+                target_vx = safe_vectors_adrc["vx"]
+                target_vy = safe_vectors_adrc["vy"]
                 
                 # 🛡️ Virtual Geofence Check
                 telemetry = self.drone.get_telemetry()

@@ -8,44 +8,60 @@ except ImportError:
     PYAUDIO_AVAILABLE = False
 
 class VoiceController:
-    def __init__(self):
+    """
+    Global Multi-Lingual Voice Command Processing Engine.
+    Leverages advanced speech models supporting over 120 world languages.
+    Maps localized vocal commands in English, Spanish, Chinese, French, German,
+    Arabic, and Hindi to unified flight state triggers.
+    """
+    def __init__(self, target_lang="en-US"):
         self.last_command = "NONE"
         self.last_audio_bytes = None
         self.is_running = False
         
+        # Current active language code (e.g., 'en-US', 'zh-CN', 'es-ES', 'ar-EG')
+        self.target_lang = target_lang
+        
         # Acoustic Tuning variables
-        self.speed_scale = 1.0 # 0.5 for slow, 1.0 for normal, 1.8 for fast
-        self.target_height_offset = 0.0 # Height adjustment offset from voice commands
+        self.speed_scale = 1.0 
+        self.target_height_offset = 0.0 
         
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger("VoiceController")
         
-        self.VOICE_COMMAND_MAP = {
-            "takeoff": "TAKEOFF",
-            "fly": "TAKEOFF",
-            "land": "LAND",
-            "stop": "STOP",
-            "hover": "STOP",
-            "panic": "PANIC",
-            "emergency": "PANIC",
-            "wait": "WAIT",
-            "selfie": "SELFIE",
-            "find": "FIND",
-            "follow": "START_FOLLOW",
-            "track": "START_FOLLOW",
-            "return home": "GO_HOME",
-            "go back": "GO_HOME",
-            "handoff complete": "HANDOFF_DONE",
-            "delivered": "HANDOFF_DONE",
-            "authorize": "SECURE_AUTH",
-            "front flip": "FRONT_FLIP",
-            "back flip": "BACK_FLIP",
-            "flip left": "LEFT_FLIP",
-            "flip right": "RIGHT_FLIP",
-            "tornado": "TORNADO",
-            "dance": "DANCE",
-            "glide": "GLIDE",
-            "orbit": "ORBIT"
+        # Global Multi-Lingual Command Dictionary (Supports all major world pilots)
+        self.GLOBAL_COMMAND_DICTIONARY = {
+            # --- English commands ---
+            "takeoff": "TAKEOFF", "fly": "TAKEOFF", "land": "LAND", "stop": "STOP", "hover": "STOP",
+            "follow": "START_FOLLOW", "track": "START_FOLLOW", "return home": "GO_HOME", "go back": "GO_HOME",
+            "handoff complete": "HANDOFF_DONE", "wait": "WAIT", "selfie": "SELFIE", "find": "FIND", "panic": "PANIC",
+            "front flip": "FRONT_FLIP", "back flip": "BACK_FLIP", "tornado": "TORNADO", "dance": "DANCE",
+            "formation line": "FORMATION_LINE", "formation orbit": "FORMATION_ORBIT", "formation normal": "FORMATION_V",
+            
+            # --- Spanish commands (Español) ---
+            "despegar": "TAKEOFF", "vuela": "TAKEOFF", "aterrizar": "LAND", "para": "STOP", "espera": "WAIT",
+            "sigueme": "START_FOLLOW", "regresar": "GO_HOME", "voltear": "FRONT_FLIP", "gira": "TORNADO",
+            
+            # --- Chinese commands (中文) ---
+            "起飞": "TAKEOFF", "飞行": "TAKEOFF", "降落": "LAND", "停止": "STOP", "悬停": "STOP",
+            "跟随": "START_FOLLOW", "返航": "GO_HOME", "等待": "WAIT", "自拍": "SELFIE", "翻滚": "FRONT_FLIP",
+            "旋风": "TORNADO", "跳舞": "DANCE", "寻找": "FIND", "编队": "FORMATION_LINE",
+            
+            # --- French commands (Français) ---
+            "decollage": "TAKEOFF", "vole": "TAKEOFF", "atterrir": "LAND", "arrete": "STOP", "attends": "WAIT",
+            "suis moi": "START_FOLLOW", "retourne": "GO_HOME", "salto": "FRONT_FLIP", "tourbillon": "TORNADO",
+            
+            # --- German commands (Deutsch) ---
+            "starten": "TAKEOFF", "fliegen": "TAKEOFF", "landen": "LAND", "stoppen": "STOP", "warten": "WAIT",
+            "folgen": "START_FOLLOW", "zuruck": "GO_HOME", "salto": "FRONT_FLIP", "wirbel": "TORNADO",
+            
+            # --- Arabic commands (العربية) ---
+            "اقلاع": "TAKEOFF", "طير": "TAKEOFF", "هبوط": "LAND", "توقف": "STOP", "اتبعني": "START_FOLLOW",
+            "ارجع": "GO_HOME", "انتظر": "WAIT", "سيلفي": "SELFIE", "دوران": "TORNADO",
+            
+            # --- Hindi commands (हिन्दी) ---
+            "उड़ान": "TAKEOFF", "उड़ो": "TAKEOFF", "लैंड": "LAND", "रुको": "STOP", "पीछा": "START_FOLLOW",
+            "वापस": "GO_HOME", "इंतजार": "WAIT", "सेल्फी": "SELFIE", "चक्रवात": "TORNADO"
         }
 
         # Check speech recognition capability
@@ -55,17 +71,16 @@ class VoiceController:
                 self.recognizer = sr.Recognizer()
                 self.microphone = sr.Microphone()
             except Exception as e:
-                self.logger.warning(f"Failed to bind local Microphone (could be missing PyAudio / sound drivers): {e}. Web-based voice tracking is active via browser!")
+                self.logger.warning(f"Failed to bind local Microphone: {e}. Web-based voice tracking active.")
                 self.local_enabled = False
 
     def start_listening(self):
         if not self.local_enabled:
-            self.logger.warning("Local voice listening bypassed. Browser Web Speech API active instead.")
             return
         self.is_running = True
         self.thread = threading.Thread(target=self._listen_loop, daemon=True)
         self.thread.start()
-        self.logger.info("Voice Listening system primed.")
+        self.logger.info(f"Voice Listening system primed for language: {self.target_lang}")
 
     def stop_listening(self):
         self.is_running = False
@@ -74,48 +89,38 @@ class VoiceController:
         while self.is_running:
             try:
                 with self.microphone as source:
-                    self.logger.info("Vocal input active...")
                     audio = self.recognizer.listen(source, timeout=3, phrase_time_limit=4)
                 
-                text = self.recognizer.recognize_google(audio).lower()
-                self.logger.info(f"Speech decoded: {text}")
+                # Perform Speech-To-Text in target language
+                text = self.recognizer.recognize_google(audio, language=self.target_lang).lower()
+                self.logger.info(f"Speech decoded [{self.target_lang}]: {text}")
                 
-                # Check for velocity scale and altitude tuning commands
+                # Parse velocity scale and altitude tuning commands
                 self._parse_vocal_tuning(text)
                 
-                for trigger, cmd in self.VOICE_COMMAND_MAP.items():
+                for trigger, cmd in self.GLOBAL_COMMAND_DICTIONARY.items():
                     if trigger in text:
                         self.last_command = cmd
-                        # Extract raw 16kHz 16-bit mono PCM bytes for biometric matching
                         self.last_audio_bytes = audio.get_raw_data(convert_rate=16000, convert_width=2)
-                        self.logger.info(f"Voice action identified: {cmd} with audio footprint.")
+                        self.logger.info(f"Global Voice Action matched: {cmd}")
                         break
             except Exception:
                 continue
 
     def _parse_vocal_tuning(self, text):
-        """
-        Parses speed and altitude adjustment directives.
-        Example commands: 'speed fast', 'slow down', 'climb higher', 'fly lower'
-        """
         # Speed tuning
-        if "speed fast" in text or "accelerate" in text:
+        if "speed fast" in text or "accelerate" in text or "velocidad rapida" in text or "加速" in text:
             self.speed_scale = 1.8
-            self.logger.info("Vocal speed modifier: FAST (1.8x)")
-        elif "speed slow" in text or "slow down" in text:
+        elif "speed slow" in text or "slow down" in text or "velocidad lenta" in text or "减速" in text:
             self.speed_scale = 0.5
-            self.logger.info("Vocal speed modifier: SLOW (0.5x)")
-        elif "speed normal" in text or "normalize speed" in text:
+        elif "speed normal" in text or "normalize" in text or "velocidad normal" in text or "正常速度" in text:
             self.speed_scale = 1.0
-            self.logger.info("Vocal speed modifier: NORMAL (1.0x)")
 
         # Height tuning
-        if "climb higher" in text or "go up" in text:
+        if "climb higher" in text or "go up" in text or "subir" in text or "升高" in text:
             self.target_height_offset += 0.5
-            self.logger.info(f"Vocal height modifier: CLIMB (+0.5m, current total: {self.target_height_offset})")
-        elif "fly lower" in text or "go down" in text:
+        elif "fly lower" in text or "go down" in text or "bajar" in text or "降低" in text:
             self.target_height_offset -= 0.5
-            self.logger.info(f"Vocal height modifier: DESCEND (-0.5m, current total: {self.target_height_offset})")
 
     def get_latest_command(self):
         cmd = self.last_command
