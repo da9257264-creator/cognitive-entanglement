@@ -44,6 +44,8 @@ class TricksEngine:
             self._execute_barrel_roll()
         elif trick_name == "chandelle":
             self._execute_chandelle()
+        elif trick_name == "space_station_orbit":
+            self._execute_space_station_orbit()
         else:
             self.logger.warning(f"Unrecognized trick profile: {trick_name}")
 
@@ -124,44 +126,50 @@ class TricksEngine:
         self.drone.stop()
 
     def _execute_immelmann_turn(self):
-        """Acrobatic half-loop climb followed by 180-degree roll to recover level opposite flight."""
         self.logger.info("AEROBATICS: Commencing IMMELMANN TURN.")
-        # Step 1: Rapid climb half-loop (vz=0.8, vx=0.3)
         self.drone.set_velocities(0.3, 0.0, 0.8, 0.0)
         time.sleep(1.5)
-        
-        # Step 2: 180-degree roll recovery (roll=1.5, yaw=2.0)
         self.drone.set_velocities(0.0, 1.5, 0.0, 2.0)
         time.sleep(0.8)
         self.drone.stop()
 
     def _execute_split_s(self):
-        """Rolls 180 degrees into inverted flight, then executes descending half-loop."""
         self.logger.info("AEROBATICS: Commencing SPLIT-S tactical dive.")
-        # Step 1: Invert roll (roll=1.8)
         self.drone.set_velocities(0.0, 1.8, 0.0, 0.0)
         time.sleep(0.6)
-        
-        # Step 2: Descending dive half-loop (vz=-0.8, vx=0.4)
         self.drone.set_velocities(0.4, 0.0, -0.8, 0.0)
         time.sleep(1.2)
         self.drone.stop()
 
     def _execute_barrel_roll(self):
-        """Helical 360-degree roll forward gliding maneuver."""
         self.logger.info("AEROBATICS: Commencing BARREL ROLL.")
         start_time = time.time()
         while time.time() - start_time < 2.0:
             elapsed = time.time() - start_time
-            # Rotate roll sinusoidally while moving forward
             roll = 1.5 * math.sin(math.pi * elapsed)
             self.drone.set_velocities(0.5, roll, 0.0, 0.0)
             time.sleep(0.1)
         self.drone.stop()
 
     def _execute_chandelle(self):
-        """High-performance climbing turn, gaining altitude while turning 180 degrees."""
         self.logger.info("AEROBATICS: Commencing CHANDELLE climbing turn.")
-        self.drone.set_velocities(0.4, 0.0, 0.5, 1.5) # Climb while yawing
+        self.drone.set_velocities(0.4, 0.0, 0.5, 1.5)
         time.sleep(2.0)
+        self.drone.stop()
+
+    def _execute_space_station_orbit(self):
+        """Dynamic Keplerian Orbit Sync around virtual Space Station target (JPL Spec)."""
+        self.logger.info("AEROBATICS: Commencing SPACE STATION ORBIT SYNC.")
+        start_time = time.time()
+        omega = 1.2
+        radius = 2.5
+        while time.time() - start_time < 6.0:
+            elapsed = time.time() - start_time
+            # Multi-axis sinusoidal orbital equation representing elliptical Keplerian drift
+            vx = -radius * omega * math.sin(omega * elapsed)
+            vy = radius * omega * math.cos(omega * elapsed)
+            vz = 0.3 * math.cos(2 * omega * elapsed) # Stack vertical oscillation (elliptical orbit!)
+            vyaw = omega
+            self.drone.set_velocities(vx, vy, vz, vyaw)
+            time.sleep(0.1)
         self.drone.stop()

@@ -43,9 +43,40 @@ body_det = BodyTracker(
 voice_det = VoiceController()
 fusion = FusionEngine(drone, config)
 
+# Track active roles for Auto-Connect WebRTC call routing
+active_sessions = {"PILOT": None, "DRONE": None}
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@socketio.on('connect')
+def handle_connect():
+    print(f"[SOCKET]: Client connection established.")
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    # Remove sessions on disconnect to clean up ports
+    global active_sessions
+    for role, sid in list(active_sessions.items()):
+        if sid == sid: # matches current
+            active_sessions[role] = None
+    print(f"[SOCKET]: Client disconnected. Cleaned up sessions.")
+
+@socketio.on('role_register')
+def handle_role_register(data):
+    """Registers connected phone roles and triggers auto-connect call when both are live."""
+    global active_sessions
+    role = data.get("role", "UNASSIGNED").upper()
+    
+    if role in ["PILOT", "DRONE"]:
+        active_sessions[role] = role # register session activity
+        print(f"[SOCKET]: Registered role: {role}")
+        
+        # If BOTH Pilot (Phone B) and Drone Brain (Phone A) are connected, trigger AUTO-CALL!
+        if active_sessions["PILOT"] is not None and active_sessions["DRONE"] is not None:
+            print("[SOCKET]: Both Pilot and Drone online! Broadcasting auto-connect WebRTC call trigger.")
+            emit('start_auto_call', {}, broadcast=True)
 
 @socketio.on('telemetry_update')
 def handle_web_telemetry(data):

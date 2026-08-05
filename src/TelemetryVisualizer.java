@@ -1,4 +1,4 @@
-package Morningstar.CognitiveEntanglement;
+package CognitiveEntanglement;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,7 +16,7 @@ public class TelemetryVisualizer {
     private static final String TELEMETRY_URL = "http://127.0.0.1:5000/telemetry";
 
     public static void main(String[] args) {
-        System.out.println("MORNINGSTAR: Java Telemetry Ground Console Client Initialized.");
+        System.out.println("COGNITIVE ENTANGLEMENT: Java Telemetry Ground Console Client Initialized.");
         System.out.println("Connecting to Cognitive Entanglement flight core stream at: " + TELEMETRY_URL);
 
         try {

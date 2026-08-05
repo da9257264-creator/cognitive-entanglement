@@ -38,6 +38,7 @@ class VoiceController:
             "front flip": "FRONT_FLIP", "back flip": "BACK_FLIP", "tornado": "TORNADO", "dance": "DANCE",
             "formation line": "FORMATION_LINE", "formation orbit": "FORMATION_ORBIT", "formation normal": "FORMATION_V",
             "immelmann": "IMMELMANN", "split s": "SPLITS", "barrel roll": "BARRELROLL", "chandelle": "CHANDELLE",
+            "orbit satellite": "ORBIT_SAT", "sync iss": "ORBIT_SAT", "sync satellite": "ORBIT_SAT",
             
             # --- Spanish commands (Español) ---
             "despegar": "TAKEOFF", "vuela": "TAKEOFF", "aterrizar": "LAND", "para": "STOP", "espera": "WAIT",

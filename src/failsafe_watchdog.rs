@@ -51,7 +51,7 @@ impl FailsafeWatchdog {
 }
 
 fn main() {
-    println!("Morningstar: Cognitive Entanglement - Rust High-Integrity Failsafe Watchdog Initialized.");
+    println!("Cognitive Entanglement - Rust High-Integrity Failsafe Watchdog Initialized.");
     let mut watchdog = FailsafeWatchdog::new(2); // 2 second failsafe boundary
     
     // Simulate active watchdog thread polling

@@ -123,30 +123,32 @@
         }
         .wizard-dot.active {
             background-color: #3b82f6;
-            box-shadow: 0 0 8px rgba(59, 130, 248, 0.6);
+            box-shadow: 0 0 8px rgba(129, 140, 248, 0.6);
         }
         .wizard-dot.completed {
             background-color: #00f0ff;
         }
+        /* Video and Camera Feed Display */
         #video-container {
             position: relative;
             width: 100%;
             aspect-ratio: 4/3;
-            background-color: #000;
+            background-color: #020408;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #1e293b;
+            border: 1px solid #1f2937;
         }
-        video {
-            display: none;
-        }
+        /* Crucial: WebRTC Remote Video Call is drawn onto this visible canvas! */
         canvas#output_canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            transform: scaleX(-1);
+            transform: scaleX(-1); /* Mirror feedback for pilot */
+        }
+        video {
+            display: none; /* Processed in background, rendered beautifully on canvas! */
         }
         #simulator-panel {
             width: 100%;
@@ -460,6 +462,7 @@
 
             <!-- FPV WebRTC Call Interface -->
             <div class="call-hud">
+                <div style="font-size: 10px; text-transform: uppercase; color: #00f0ff; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%; margin-bottom: 5px;">📞 5G Cellular WebRTC Call Link</div>
                 <div class="call-controls">
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <div class="call-pulse" id="call-pulse-node"></div>
@@ -467,10 +470,11 @@
                     </div>
                     <button class="call-btn" id="btn-call" onclick="toggleFPVCall()">Place WebRTC Call</button>
                 </div>
+                <!-- Onboard Phone A displays this feed of you from Phone B, running MediaPipe locally on it! -->
                 <video id="remote-video-feed" autoplay playsinline controls></video>
             </div>
 
-            <!-- Video Frame Overlay -->
+            <!-- Video Frame Overlay (Displays your local camera feed when initialized) -->
             <div id="video-container" style="margin-top: 10px;">
                 <video id="webcam" autoplay playsinline></video>
                 <canvas id="output_canvas"></canvas>
@@ -481,51 +485,13 @@
                 <button class="action-btn" style="background: #a855f7; border-color:#a855f7; color:#fff;" id="btn-gps" onclick="toggleGPSTracking()">GPS Track Location</button>
             </div>
             
-            <!-- Laptop Key Diagnostic HUD -->
-            <div class="keyboard-hud" id="keyboard-hud-panel" style="display:none;">
-                <div style="font-weight:bold; width:100%; color:#a5b4fc; margin-bottom:5px; text-transform:uppercase; font-size:9px;">Laptop Key Diagnostic HUD</div>
-                <span class="key-badge" id="key-w">W (Fwd)</span>
-                <span class="key-badge" id="key-s">S (Bwd)</span>
-                <span class="key-badge" id="key-a">A (Left)</span>
-                <span class="key-badge" id="key-d">D (Right)</span> |
-                <span class="key-badge" id="key-arrowup">▲ (Climb)</span>
-                <span class="key-badge" id="key-arrowdown">▼ (Descend)</span>
-                <span class="key-badge" id="key-arrowleft">◀ (Yaw L)</span>
-                <span class="key-badge" id="key-arrowright">▶ (Yaw R)</span> |
-                <span class="key-badge" id="key-space">Space (Arm)</span>
-            </div>
-
-            <!-- Mobile Tactile Directional Key Buttons -->
-            <div class="mobile-keypad-panel" id="joysticks-panel">
-                <div style="font-weight:bold; color:#a5b4fc; margin-bottom:5px; text-transform:uppercase; font-size:10px;">Tactile Phone Keypad</div>
-                
-                <!-- Vertical & Horizontal Translations -->
-                <div class="keypad-row">
-                    <button class="keypad-btn" id="phone-key-climb" onmousedown="setPhoneKey('vz', 0.5)" onmouseup="clearPhoneKey('vz')" ontouchstart="setPhoneKey('vz', 0.5)" ontouchend="clearPhoneKey('vz')">┭</button>
-                    <button class="keypad-btn" id="phone-key-w" onmousedown="setPhoneKey('vx', 0.5)" onmouseup="clearPhoneKey('vx')" ontouchstart="setPhoneKey('vx', 0.5)" ontouchend="clearPhoneKey('vx')">▲</button>
-                    <button class="keypad-btn" id="phone-key-descend" onmousedown="setPhoneKey('vz', -0.5)" onmouseup="clearPhoneKey('vz')" ontouchstart="setPhoneKey('vz', -0.5)" ontouchend="clearPhoneKey('vz')">┮</button>
-                </div>
-                <div class="keypad-row">
-                    <button class="keypad-btn" id="phone-key-a" onmousedown="setPhoneKey('vy', -0.5)" onmouseup="clearPhoneKey('vy')" ontouchstart="setPhoneKey('vy', -0.5)" ontouchend="clearPhoneKey('vy')">◀</button>
-                    <button class="keypad-btn" id="phone-key-s" onmousedown="setPhoneKey('vx', -0.5)" onmouseup="clearPhoneKey('vx')" ontouchstart="setPhoneKey('vx', -0.5)" ontouchend="clearPhoneKey('vx')">▼</button>
-                    <button class="keypad-btn" id="phone-key-d" onmousedown="setPhoneKey('vy', 0.5)" onmouseup="clearPhoneKey('vy')" ontouchstart="setPhoneKey('vy', 0.5)" ontouchend="clearPhoneKey('vy')">▶</button>
-                </div>
-                <div class="keypad-row">
-                    <button class="keypad-btn" id="phone-key-yawl" style="font-size:12px;" onmousedown="setPhoneKey('vyaw', -0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', -0.6)" ontouchend="clearPhoneKey('vyaw')">Turn L</button>
-                    <button class="keypad-btn" id="phone-key-yawr" style="font-size:12px;" onmousedown="setPhoneKey('vyaw', 0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', 0.6)" ontouchend="clearPhoneKey('vyaw')">Turn R</button>
-                </div>
-            </div>
-
-            <!-- Voice-Guided ActiveTrack Target Selector -->
+            <!-- Multi-Spectral FPV Camera Overlay (Thermal / Night Vision Shader) -->
             <div style="width: 100%; margin-top: 15px;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #00f0ff; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">🎯 Onboard ActiveTrack Target</div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #00f0ff; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">📡 Multi-Spectral FPV Camera Mode</div>
                 <div class="selector-grid">
-                    <button class="selector-item active" id="track-none" onclick="setActiveTrackTarget('CANCEL')">None (Human)</button>
-                    <button class="selector-item" id="track-ball" onclick="setActiveTrackTarget('ball')">Ball</button>
-                    <button class="selector-item" id="track-backpack" onclick="setActiveTrackTarget('backpack')">Backpack</button>
-                    <button class="selector-item" id="track-dog" onclick="setActiveTrackTarget('dog')">Dog</button>
-                    <button class="selector-item" id="track-cat" onclick="setActiveTrackTarget('cat')">Cat</button>
-                    <button class="selector-item" id="track-bicycle" onclick="setActiveTrackTarget('bicycle')">Bicycle</button>
+                    <button class="selector-item active" id="spectral-rgb" onclick="setSpectralMode('RGB')">RGB (Visual)</button>
+                    <button class="selector-item" id="spectral-thermal" style="color: #fb7185; border-color: rgba(251,113,133,0.3);" onclick="setSpectralMode('THERMAL')">Thermal IR</button>
+                    <button class="selector-item" id="spectral-nvg" style="color: #34d399; border-color: rgba(52,211,153,0.3);" onclick="setSpectralMode('NVG')">Night Vision</button>
                 </div>
             </div>
         </div>
@@ -580,8 +546,8 @@
                     </div>
                 </div>
                 <div class="telemetry-card">
-                    <div>Drone Battery</div>
-                    <div id="battery-txt" style="color: #10b981;">100%</div>
+                    <div>GPS Satellites (DOP)</div>
+                    <div id="gps-lock-txt" style="color: #10b981; font-family:monospace; font-weight:bold;">LOCK: 3D (DOP: 1.15)</div>
                 </div>
             </div>
             
@@ -613,11 +579,35 @@
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         };
 
+        // Parse role parameters directly from URL query parameters on load! (e.g. ?role=pilot or ?role=drone)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roleParam = urlParams.get('role');
+            if (roleParam) {
+                const targetRole = roleParam.toUpperCase();
+                if (targetRole === "PILOT" || targetRole === "DRONE") {
+                    log(`[SYSTEM]: URL Router detected autostart parameter. Fixing role as: ${targetRole}`);
+                    setPhoneRole(targetRole);
+                    
+                    // IF PILOT (Phone B): Automatically trigger local camera permission on load!
+                    if (targetRole === "PILOT") {
+                        setTimeout(() => {
+                            log("[SYSTEM]: Auto-Calibrating Ground Pilot Camera feed...");
+                            document.getElementById('btn-init').click(); // Auto-trigger camera startup on load!
+                        }, 1000);
+                    }
+                }
+            }
+        });
+
         function setPhoneRole(role) {
             phoneRole = role;
             document.querySelectorAll('.phone-btn').forEach(btn => btn.classList.remove('active'));
             const btnPilot = document.getElementById('btn-role-pilot');
             const btnDrone = document.getElementById('btn-role-drone');
+
+            // Send role registration message directly to server! (Critical for Auto-Connect!)
+            socket.emit('role_register', { role: role });
 
             if (role === "PILOT") {
                 btnPilot.classList.add('active');
@@ -631,6 +621,22 @@
                 log("[ROLE]: Configured as Drone Brain (Phone A). MediaPipe listening on remote stream feed!");
             }
         }
+
+        // --- 🤖 HIGH-SPEED AUTOMATIC CALL CONNECTION LOOP 🤖 ---
+        socket.on('start_auto_call', async () => {
+            log("[SOCKET]: Both Pilot (Phone B) and Drone Brain (Phone A) online!");
+            log("[SOCKET]: Triggering automatic 5G WebRTC voice/video connection...");
+            
+            // Auto-trigger Speech Synthesis feedback to announce connection
+            if (window.speechSynthesis) {
+                const autoCallUtterance = new SpeechSynthesisUtterance("Cognitive connection established. Launching automatic Web-R-T-C video and voice call stream.");
+                window.speechSynthesis.speak(autoCallUtterance);
+            }
+            
+            if (!callActive) {
+                await toggleFPVCall(); // Launch call automatically with ZERO clicks!
+            }
+        });
 
         // --- Branded Role & Controller Toggles ---
         function setControlMode(mode) {
@@ -692,6 +698,66 @@
                 log(`[ACTIVETRACK]: Locking onboard target class to: '${targetClass.toUpperCase()}'`);
             }
             socket.emit('telemetry_update', { tracking_target_cmd: targetClass });
+        }
+
+        // --- Multi-Spectral FPV Camera Mode (Pixel Shader Filters!) ---
+        let activeSpectralMode = "RGB"; // RGB, THERMAL, NVG
+
+        function setSpectralMode(mode) {
+            activeSpectralMode = mode;
+            document.querySelectorAll('.selector-grid .selector-item').forEach(btn => {
+                if (btn.id.startsWith('spectral-')) btn.classList.remove('active');
+            });
+            const btn = document.getElementById(`spectral-${mode.toLowerCase()}`);
+            if (btn) btn.classList.add('active');
+            log(`[SENSORS]: Shifted onboard FPV sensor mode to: ${mode}`);
+        }
+
+        // Applies real-time visual filter algorithms (representing onboard FPGA image processing!)
+        function applySpectralFilters(imageElement) {
+            // Draw standard raw frame first
+            ctx.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+
+            if (activeSpectralMode === "RGB") return; // Bypassed for standard colored feed
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i+1];
+                const b = data[i+2];
+
+                // Calculate luminance
+                const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                if (activeSpectralMode === "NVG") {
+                    // Phosphor-Green Night Vision: Map luminance to pure high-gain green channel
+                    data[i] = luma * 0.1;     // Suppress red
+                    data[i+1] = luma * 1.6;   // High-gain green
+                    data[i+2] = luma * 0.15;  // Low blue
+                } 
+                else if (activeSpectralMode === "THERMAL") {
+                    // Thermal Infrared (Heat Map): Map cold pixels to deep blues/purples, hot pixels to orange/red/white
+                    if (luma < 85) {
+                        // Cold (0 - 85): Blue to Purple
+                        data[i] = luma * 0.5;
+                        data[i+1] = 0;
+                        data[i+2] = luma * 2.5;
+                    } else if (luma < 170) {
+                        // Warm (85 - 170): Purple to Orange/Red
+                        data[i] = luma * 2.0;
+                        data[i+1] = (luma - 85) * 1.5;
+                        data[i+2] = 0;
+                    } else {
+                        // Hot (170 - 255): Yellow to White
+                        data[i] = 255;
+                        data[i+1] = 200 + (luma - 170);
+                        data[i+2] = (luma - 170) * 3.0;
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
         }
 
         // --- Draw-to-Fly Canvas Operations ---
@@ -784,6 +850,7 @@
             }
         });
 
+        // The WebRTC video/audio call connector function!
         async function toggleFPVCall() {
             const callBtn = document.getElementById('btn-call');
             const callPulse = document.getElementById('call-pulse-node');
@@ -1194,6 +1261,54 @@
         let gpsWatchId = null;
         let originalGPSPosition = null;
 
+        // Visual GPS Satellite Constellation Polar-Plot HUD Tracker
+        function drawGpsConstellationRadar(ctxLoc, x, y, radius) {
+            ctxLoc.save();
+            ctxLoc.strokeStyle = "rgba(0, 240, 255, 0.25)";
+            ctxLoc.lineWidth = 1;
+            
+            // Draw radar concentric circles
+            ctxLoc.beginPath();
+            ctxLoc.arc(x, y, radius, 0, 2 * Math.PI);
+            ctxLoc.arc(x, y, radius * 0.6, 0, 2 * Math.PI);
+            ctxLoc.arc(x, y, radius * 0.3, 0, 2 * Math.PI);
+            ctxLoc.stroke();
+
+            // Draw radar crosshairs
+            ctxLoc.beginPath();
+            ctxLoc.moveTo(x - radius, y); ctxLoc.lineTo(x + radius, y);
+            ctxLoc.moveTo(x, y - radius); ctxLoc.lineTo(x, y + radius);
+            ctxLoc.stroke();
+
+            // Draw 4 simulated orbiting GPS Satellites
+            const t = Date.now() / 1000.0;
+            const satOffsets = [
+                { id: "G05", speed: 0.15, radiusFactor: 0.8 },
+                { id: "E12", speed: -0.22, radiusFactor: 0.5 },
+                { id: "R19", speed: 0.08, radiusFactor: 0.7 },
+                { id: "C31", speed: -0.11, radiusFactor: 0.4 }
+            ];
+
+            satOffsets.forEach(sat => {
+                const angle = t * sat.speed;
+                const satX = x + radius * sat.radiusFactor * Math.cos(angle);
+                const satY = y + radius * sat.radiusFactor * Math.sin(angle);
+
+                // Draw Satellite dot
+                ctxLoc.fillStyle = "#00f0ff";
+                ctxLoc.beginPath();
+                ctxLoc.arc(satX, satY, 3, 0, 2 * Math.PI);
+                ctxLoc.fill();
+
+                // Draw text label
+                ctxLoc.fillStyle = "rgba(0, 240, 255, 0.6)";
+                ctxLoc.font = "7px monospace";
+                ctxLoc.fillText(sat.id, satX + 5, satY + 2);
+            });
+
+            ctxLoc.restore();
+        }
+
         function toggleGPSTracking() {
             const gpsBtn = document.getElementById('btn-gps');
             if (gpsWatchId === null) {
@@ -1243,7 +1358,7 @@
             rec.lang = 'en-US';
             rec.onresult = function(event) {
                 const text = event.results[event.results.length - 1][0].transcript.toLowerCase();
-                log(`Local Speech: "${text}"`);
+                log("Local Speech: " + text);
                 
                 if (text.includes("authorize drone") && activeWizardStep === "VOICE_SCAN") {
                     lastVoiceCommand = "SECURE_AUTH";
@@ -1323,7 +1438,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             if (phoneRole === "PILOT") {
-                ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+                applySpectralFilters(webcam); // Apply real-time Night-Vision/Thermal pixel shaders!
             }
             
             detectedGesture = "NONE";
@@ -1449,7 +1564,7 @@
                     document.getElementById('dot-face').className = "wizard-dot active";
                 } else if (activeWizardStep === "VOICE_SCAN") {
                     document.getElementById('dot-welcome').className = "wizard-dot completed";
-                    document.getElementById('dot-face').className = "wizard-dot completed";
+                    document.getElementById('dot-face').className = "workspace-dot completed";
                     document.getElementById('dot-voice').className = "wizard-dot active";
                 } else if (activeWizardStep === "GESTURE_CHECK") {
                     document.getElementById('dot-welcome').className = "wizard-dot completed";
@@ -1544,6 +1659,15 @@
             logBox.innerHTML += `<br>[SYS]: ${msg}`;
             logBox.scrollTop = logBox.scrollHeight;
         }
+
+        // Draw the GPS Satellite polar-plot radar overlay directly in HUD panel
+        const hudCanvas = document.getElementById('hud_canvas');
+        const hudCtx = hudCanvas.getContext('2d');
+        setInterval(() => {
+            if (hudCanvas) {
+                drawGpsConstellationRadar(hudCtx, 35, 155, 30); // Draw on bottom-left corner of HUD
+            }
+        }, 100);
     </script>
 </body>
 </html>

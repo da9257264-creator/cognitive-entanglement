@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1950" width="100%" height="100%" style="background-color: #ffffff; font-family: 'Inter', -apple-system, sans-serif;">
+  <defs>
+    <!-- Professional Drop Shadows for Light Theme -->
+    <filter id="shadow-node" x="-10%" y="-5%" width="120%" height="110%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#cbd5e1" flood-opacity="0.5"/>
+    </filter>
+    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <!-- Linear Gradients for Node Borders -->
+    <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0284c7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7e22ce;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ea580c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c2410c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main Title -->
+  <text x="500" y="45" fill="#0f172a" font-size="24" font-weight="900" letter-spacing="2" text-anchor="middle">COGNITIVE ENTANGLEMENT FLIGHT SOFTWARE STACK</text>
+  <text x="500" y="70" fill="#475569" font-size="12" font-weight="bold" letter-spacing="1" text-anchor="middle">DISTRIBUTED MULTI-LOOP AVIONICS &amp; GROUND SYSTEMS AUTHORITY</text>
+
+  <!-- 1. Outer-Loop: HMI -->
+  <g transform="translate(100, 110)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-cyan)" stroke-width="2.5"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 1: OUTER-LOOP HUMAN-MACHINE INTERFACE</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Captures real-time skeletal landmarks, face meshes, and spoken commands from Phone B.</text>
+    <text x="30" y="70" fill="#0284c7" font-size="11" font-weight="bold">Languages: TypeScript, JavaScript, HTML5, CSS3 (WebGL • 60Hz)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#e0f2fe" />
+    <text x="725" y="39" fill="#0369a1" font-size="10" font-weight="bold" text-anchor="middle">📱 PHONE B</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,195 L 500,225" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,230 496,220 504,220" fill="#94a3b8" />
+  <text x="515" y="215" fill="#64748b" font-size="9" font-weight="bold">WebRTC P2P Call (Sub-100ms)</text>
+
+  <!-- 2. WebRTC Signaling Core -->
+  <g transform="translate(100, 235)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-blue)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 2: LOW-LATENCY PEER SIGNALING CORE</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Routes connection handshakes, ICE candidates, and telemetry commands between dual phones.</text>
+    <text x="30" y="70" fill="#2563eb" font-size="11" font-weight="bold">Languages: Go (Golang) (Mutex-Locked Goroutines • Sub-millisecond)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#dbeafe" />
+    <text x="725" y="39" fill="#1e40af" font-size="10" font-weight="bold" text-anchor="middle">🌐 5G CLOUD</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,320 L 500,350" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,355 496,345 504,345" fill="#94a3b8" />
+  <text x="515" y="340" fill="#64748b" font-size="9" font-weight="bold">Keplerian Waypoint Matrices</text>
+
+  <!-- 3. MATLAB Sim -->
+  <g transform="translate(100, 360)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-orange)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 3: AUTOPILOT DESIGN &amp; TRAJECTORY MODELLING</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Performs off-line 12-state rigid body quadcopter dynamics modeling &amp; Runge-Kutta integrations.</text>
+    <text x="30" y="70" fill="#ea580c" font-size="11" font-weight="bold">Languages: MATLAB (Simulink-Compatible continuous ODE solvers)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#ffedd5" />
+    <text x="725" y="39" fill="#c2410c" font-size="10" font-weight="bold" text-anchor="middle">📊 MODELLING</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,445 L 500,475" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,480 496,470 504,470" fill="#94a3b8" />
+  <text x="515" y="465" fill="#64748b" font-size="9" font-weight="bold">Atmospheric Drag Profiles</text>
+
+  <!-- 4. Julia Decay -->
+  <g transform="translate(100, 485)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-green)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 4: SCIENTIFIC ORBITAL DECAY ANALYSIS</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Simulates Earth geodetic boundaries and exponential atmospheric densities to project altitude decays.</text>
+    <text x="30" y="70" fill="#16a34a" font-size="11" font-weight="bold">Languages: Julia (JIT-Compiled vector math arrays)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#dcfce7" />
+    <text x="725" y="39" fill="#15803d" font-size="10" font-weight="bold" text-anchor="middle">🛰️ ORBITAL</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,570 L 500,600" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,605 496,595 504,595" fill="#94a3b8" />
+  <text x="515" y="590" fill="#64748b" font-size="9" font-weight="bold">Satellite Keplerian Sync Path</text>
+
+  <!-- 5. Lisp Planner -->
+  <g transform="translate(100, 610)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-purple)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 5: DEEP-SPACE AUTONOMOUS TRAJECTORY PLANNER</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Propagates Keplerian elements and solves transcendental equations using Newton-Raphson iterations.</text>
+    <text x="30" y="70" fill="#9333ea" font-size="11" font-weight="bold">Languages: Common Lisp (NASA JPL Remote Agent Standard)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#f3e8ff" />
+    <text x="725" y="39" fill="#7e22ce" font-size="10" font-weight="bold" text-anchor="middle">🚀 AUTONOMY</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,695 L 500,725" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,730 496,720 504,720" fill="#94a3b8" />
+  <text x="515" y="715" fill="#64748b" font-size="9" font-weight="bold">Strategic Waypoint Queue</text>
+
+  <!-- 6. Mid-Loop: Python -->
+  <g transform="translate(100, 735)" filter="url(#shadow-node)">
+    <rect width="800" height="95" rx="12" fill="#f8fafc" stroke="url(#grad-cyan)" stroke-width="2.5"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 6: MID-LOOP COGNITIVE GUIDANCE ENGINE</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Coordinates 3D blockade bypass, obstacle avoidance, handoff detection, and flight state-machines.</text>
+    <text x="30" y="72" fill="#0284c7" font-size="11" font-weight="bold">Languages: Python &amp; DevOps Bash (50Hz - 100Hz loops)</text>
+    <!-- Badge -->
+    <rect x="680" y="30" width="90" height="22" rx="4" fill="#e0f2fe" />
+    <text x="725" y="44" fill="#0369a1" font-size="10" font-weight="bold" text-anchor="middle">🛸 PHONE A</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,830 L 500,860" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,865 496,855 504,855" fill="#94a3b8" />
+  <text x="515" y="848" fill="#64748b" font-size="9" font-weight="bold">State Telemetry Vectors</text>
+
+  <!-- 7. Prolog FDIR -->
+  <g transform="translate(100, 870)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-orange)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 7: EXPERT SYSTEM FAULT DETECTION &amp; DIAGNOSIS (FDIR)</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Fuses temperature, voltage, and current readings to isolate, diagnose, and mitigate hardware faults.</text>
+    <text x="30" y="70" fill="#ea580c" font-size="11" font-weight="bold">Languages: Prolog (First-Order Predicate Logic Expert Rules)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#ffedd5" />
+    <text x="725" y="39" fill="#c2410c" font-size="10" font-weight="bold" text-anchor="middle">🛡️ FAILSAFE</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,955 L 500,985" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,990 496,980 504,980" fill="#94a3b8" />
+  <text x="515" y="970" fill="#64748b" font-size="9" font-weight="bold">FDIR Mitigation Overrides</text>
+
+  <!-- 8. Rust Watchdog -->
+  <g transform="translate(100, 995)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-green)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 8: SAFETY-CRITICAL MONITORING ONBOARD WATCHDOG</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Polles telemetry loops at 10Hz to verify active cognitive heartbeats with sub-microsecond latency.</text>
+    <text x="30" y="70" fill="#16a34a" font-size="11" font-weight="bold">Languages: Rust (Zero-cost memory safety • Thread-Polled)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#dcfce7" />
+    <text x="725" y="39" fill="#15803d" font-size="10" font-weight="bold" text-anchor="middle">🛡️ MONITOR</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,1080 L 500,1110" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,1115 496,1105 504,1105" fill="#94a3b8" />
+  <text x="515" y="1098" fill="#64748b" font-size="9" font-weight="bold">USB OTG Serial Packet Bridge</text>
+
+  <!-- 9. C# Gateway -->
+  <g transform="translate(100, 1120)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-blue)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 9: ONBOARD PLUG-AND-PLAY USB-SERIAL GATEWAY</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Bridges low-level serial UART bytes from the flight controller to the local SocketIO/WebUI loop.</text>
+    <text x="30" y="70" fill="#2563eb" font-size="11" font-weight="bold">Languages: C# (C-Sharp / Xamarin / Mono Spec • 1000Hz Bidirectional)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#dbeafe" />
+    <text x="725" y="39" fill="#1e40af" font-size="10" font-weight="bold" text-anchor="middle">🔌 USB HOST</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,1205 L 500,1235" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,1240 496,1230 504,1230" fill="#94a3b8" />
+  <text x="515" y="1222" fill="#64748b" font-size="9" font-weight="bold">MAVLink Packets (921,600 bps)</text>
+
+  <!-- 10. Ada Geofence -->
+  <g transform="translate(100, 1245)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-purple)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 10: HIGH-INTEGRITY GEOMETRIC SAFETY BOUNDS</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Enforces non-overridable flight altitude geofence bounds with zero-runtime exception safety.</text>
+    <text x="30" y="70" fill="#9333ea" font-size="11" font-weight="bold">Languages: Ada (DO-178C Level A Specification • 100Hz)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#f3e8ff" />
+    <text x="725" y="39" fill="#7e22ce" font-size="10" font-weight="bold" text-anchor="middle">🛡️ GEOFENCE</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,1330 L 500,1360" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,1365 496,1355 504,1355" fill="#94a3b8" />
+  <text x="515" y="1348" fill="#64748b" font-size="9" font-weight="bold">Hardware Vector Multiplications</text>
+
+  <!-- 11. ARM Assembly -->
+  <g transform="translate(100, 1370)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-cyan)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 11: NEON SIMD HARDWARE VECTOR ACCELERATION</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Multiplies 4-lane single precision float coordinate frames in parallel in a single CPU instruction.</text>
+    <text x="30" y="70" fill="#0284c7" font-size="11" font-weight="bold">Languages: ARM Assembly (ASM / AArch64 registers • Sub-microsecond)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#e0f2fe" />
+    <text x="725" y="39" fill="#0369a1" font-size="10" font-weight="bold" text-anchor="middle">⚡ NEON SIMD</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,1455 L 500,1485" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,1490 496,1480 504,1480" fill="#94a3b8" />
+  <text x="515" y="1472" fill="#64748b" font-size="9" font-weight="bold">Aeronautical NED Coordinates</text>
+
+  <!-- 12. Inner-Loop C++ -->
+  <g transform="translate(100, 1495)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-blue)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 12: INNER-LOOP FLIGHT ATTITUDE STABILIZATION</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Runs nested PID rate controllers, motor mixers, and EKF3 state estimation algorithms.</text>
+    <text x="30" y="70" fill="#2563eb" font-size="11" font-weight="bold">Languages: C++ (PX4 / ArduPilot Autopilot Firmware • 1000Hz)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#dbeafe" />
+    <text x="725" y="39" fill="#1e40af" font-size="10" font-weight="bold" text-anchor="middle">🛸 AUTOPILOT</text>
+  </g>
+
+  <!-- Flow Arrow -->
+  <path d="M 500,1580 L 500,1610" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="500,1615 496,1605 504,1605" fill="#94a3b8" />
+  <text x="515" y="1598" fill="#64748b" font-size="9" font-weight="bold">Direct DMA Bus Access</text>
+
+  <!-- 13. Bare-Metal C -->
+  <g transform="translate(100, 1620)" filter="url(#shadow-node)">
+    <rect width="800" height="85" rx="12" fill="#f8fafc" stroke="url(#grad-green)" stroke-width="2"/>
+    <text x="30" y="32" fill="#0f172a" font-size="13" font-weight="900">LEVEL 13: BARE-METAL SENSOR COMMUNICATION &amp; PERIPHERALS</text>
+    <text x="30" y="52" fill="#64748b" font-size="10">Reads physical SPI/I2C sensor registers (accelerometers, LiDAR altitude rangefinders) over direct hardware buses.</text>
+    <text x="30" y="70" fill="#16a34a" font-size="11" font-weight="bold">Languages: C (Bare-Metal Microcontroller Drivers • Interrupt-Driven)</text>
+    <!-- Badge -->
+    <rect x="680" y="25" width="90" height="22" rx="4" fill="#dcfce7" />
+    <text x="725" y="39" fill="#15803d" font-size="10" font-weight="bold" text-anchor="middle">🔌 SPI / I2C</text>
+  </g>
+
+  <!-- Parallel Flow lines to bottom cards -->
+  <path d="M 233,1705 L 233,1765" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <path d="M 500,1705 L 500,1765" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <path d="M 766,1705 L 766,1765" fill="none" stroke="#94a3b8" stroke-width="2" />
+  <polygon points="233,1770 229,1760 237,1760" fill="#94a3b8" />
+  <polygon points="500,1770 496,1760 504,1760" fill="#94a3b8" />
+  <polygon points="766,1770 762,1760 770,1760" fill="#94a3b8" />
+
+  <!-- Layer 14: FPGA, Logger & LabVIEW -->
+  <!-- Left Box: FPGA -->
+  <g transform="translate(100, 1775)" filter="url(#shadow-node)">
+    <rect width="250" height="110" rx="10" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+    <text x="125" y="32" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">SPACE ELECTRONICS</text>
+    <text x="125" y="52" fill="#64748b" font-size="9" text-anchor="middle">SPI decoders &amp; shaft quadrature</text>
+    <text x="125" y="68" fill="#64748b" font-size="9" text-anchor="middle">decoders inside hardware gates.</text>
+    <text x="125" y="90" fill="#0284c7" font-size="10" font-weight="bold" text-anchor="middle">Verilog / VHDL (50MHz)</text>
+  </g>
+
+  <!-- Center Box: Logger -->
+  <g transform="translate(375, 1775)" filter="url(#shadow-node)">
+    <rect width="250" height="110" rx="10" fill="#f8fafc" stroke="#16a34a" stroke-width="2"/>
+    <text x="125" y="32" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">AUTOMATED FLIGHT LOGGING</text>
+    <text x="125" y="52" fill="#64748b" font-size="9" text-anchor="middle">Listens to flight packets,</text>
+    <text x="125" y="68" fill="#64748b" font-size="9" text-anchor="middle">parses, and writes avionic logs.</text>
+    <text x="125" y="90" fill="#16a34a" font-size="10" font-weight="bold" text-anchor="middle">Ruby (JSON Daemon)</text>
+  </g>
+
+  <!-- Right Box: LabVIEW -->
+  <g transform="translate(650, 1775)" filter="url(#shadow-node)">
+    <rect width="250" height="110" rx="10" fill="#f8fafc" stroke="#ea580c" stroke-width="2"/>
+    <text x="125" y="32" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">TEST-STAND AUTOMATION</text>
+    <text x="125" y="52" fill="#64748b" font-size="9" text-anchor="middle">Controls pneumatic valve</text>
+    <text x="125" y="68" fill="#64748b" font-size="9" text-anchor="middle">actuators and cryo-pressures.</text>
+    <text x="125" y="90" fill="#ea580c" font-size="10" font-weight="bold" text-anchor="middle">LabVIEW (XML-G Dataflow)</text>
+  </g>
+</svg>
