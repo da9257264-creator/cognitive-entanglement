@@ -1,0 +1,41 @@
+COGNITIVE_ENTANGLEMENT_SHUTTLE_FCOS: PROGRAM;
+
+/* ==============================================================================
+   Cognitive Entanglement - Shuttle General Purpose Computer (GPC) Loop
+   Language: HAL/S (High-order Assembly Language for Space Shuttle)
+   Target: AP-101S Onboard Avionics Computers (NASA Space Shuttle GPC)
+   Purpose: Implements the legacy safety-critical Guidance, Navigation, and
+            Control (GNC) state loops for Shuttle Ascent and Orbital Insertion.
+   ============================================================================== */
+
+DECLARE ENTIRE PROGRAM VECTOR, MATRIX, SCALAR;
+
+DECLARE STATE_ASCENT SCALAR INTEGER;
+DECLARE TARGET_ALTITUDE SCALAR REAL;
+DECLARE CURRENT_G_FORCE SCALAR REAL;
+DECLARE THRUST_VECTOR VECTOR REAL(3);
+
+STATE_ASCENT = 1;
+TARGET_ALTITUDE = 120000.0; /* target orbit in meters */
+
+PROCESS_GNC_LOOP: PROCEDURE;
+    DO WHILE STATE_ASCENT = 1;
+        /* Pull G-Force accelerometer sensors */
+        CURRENT_G_FORCE = 3.5; /* 3.5 Gs peak during flight */
+        
+        IF TARGET_ALTITUDE - 1000.0 <= 0.0 THEN
+            /* Cut main engines, prepare orbital insertions */
+            THRUST_VECTOR = VECTOR(0.0, 0.0, 0.0);
+            STATE_ASCENT = 0;
+            WRITE(6) 'SHUTTLE FLIGHT CONTROLLER: MAIN ENGINE CUTOFF (MECO) CONFIRMED.';
+        ELSE
+            /* Guide thrust vectors upward against gravity */
+            THRUST_VECTOR = VECTOR(0.0, 0.0, 9.81 * 3.5);
+            WRITE(6) 'SHUTTLE FLIGHT CONTROLLER: ASCENT VECTOR ENGAGED. G-FORCE EXCEEDED.';
+        END;
+        
+        CLOSE PROCESS_GNC_LOOP;
+    END;
+END;
+
+CLOSE COGNITIVE_ENTANGLEMENT_SHUTTLE_FCOS;

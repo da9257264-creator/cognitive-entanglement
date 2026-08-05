@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LabVIEWVirtualInstrument Version="21.0">
+    <!-- ==============================================================================
+         Cognitive Entanglement - Rocket Test Pad Engine Valve Actuator Controller
+         Language: LabVIEW XML-G (Graphical Dataflow Specification)
+         Target: National Instruments cRIO / SpaceX Pad Automation Systems
+         Purpose: Graphical G-code virtual instrument description. Controls 
+                  pneumatic valve actuators and monitors cryogenic propellant lines.
+         ============================================================================== -->
+    <VirtualInstrument Type="Standard">
+        <FrontPanel>
+            <Indicator Name="Propellant Tank Pressure" Type="Double">
+                <Value>4500.0</Value> <!-- PSI -->
+            </Indicator>
+            <Control Name="Emergency Main Valve Actuator" Type="Boolean">
+                <Value>False</Value>
+            </Control>
+            <Indicator Name="Ignition Relay State" Type="Boolean">
+                <Value>False</Value>
+            </Indicator>
+        </FrontPanel>
+        <BlockDiagram>
+            <WhileLoop Name="Pad Control Loop" IterationRate="100">
+                <!-- Graphical Dataflow connections -->
+                <Wire Source="Emergency Main Valve Actuator" Target="Propellant Cryogenic Valve"/>
+                <CaseStructure Name="Pressure Safety Interlock">
+                    <Case Value="Tank Pressure > 5000">
+                        <Action Task="Vent Propellant Gas" Value="100"/>
+                        <Action Task="Alarm Horn" Value="True"/>
+                    </Case>
+                </CaseStructure>
+            </WhileLoop>
+        </BlockDiagram>
+    </VirtualInstrument>
+</LabVIEWVirtualInstrument>

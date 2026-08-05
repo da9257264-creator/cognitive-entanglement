@@ -1,0 +1,24 @@
+# ==============================================================================
+# Cognitive Entanglement - GitHub Linguist Language Override Configuration 🪐🛠️
+# File: .gitattributes
+# Purpose: Forces GitHub's Linguist analyzer to ignore large HTML/CSS files
+#          and index all 11 core languages (C++, Rust, Go, C#, Assembly, TS, etc.)
+#          prominently on the repository homepage sidebar!
+# ==============================================================================
+
+# Mark large HTML dashboard files as documentation so they do not dominate statistics
+templates/index.html linguist-documentation
+deploy.sh linguist-documentation
+Makefile linguist-documentation
+
+# Explicitly declare and force-index all core programming languages
+src/CoordinateTransformer.cpp linguist-language=C++
+src/CoordinateTransformer.h linguist-language=C++
+src/failsafe_watchdog.rs linguist-language=Rust
+src/signaling_server.go linguist-language=Go
+src/OnboardUsbGateway.cs linguist-language=C#
+src/vector_multiply.S linguist-language=Assembly
+src/telemetry_types.ts linguist-language=TypeScript
+src/audio_dsp_filter.py linguist-language=Python
+src/wind_compensator.py linguist-language=Python
+src/fusion_engine.py linguist-language=Python

@@ -37,6 +37,7 @@ class VoiceController:
             "handoff complete": "HANDOFF_DONE", "wait": "WAIT", "selfie": "SELFIE", "find": "FIND", "panic": "PANIC",
             "front flip": "FRONT_FLIP", "back flip": "BACK_FLIP", "tornado": "TORNADO", "dance": "DANCE",
             "formation line": "FORMATION_LINE", "formation orbit": "FORMATION_ORBIT", "formation normal": "FORMATION_V",
+            "immelmann": "IMMELMANN", "split s": "SPLITS", "barrel roll": "BARRELROLL", "chandelle": "CHANDELLE",
             
             # --- Spanish commands (Español) ---
             "despegar": "TAKEOFF", "vuela": "TAKEOFF", "aterrizar": "LAND", "para": "STOP", "espera": "WAIT",
@@ -58,6 +59,10 @@ class VoiceController:
             # --- Arabic commands (العربية) ---
             "اقلاع": "TAKEOFF", "طير": "TAKEOFF", "هبوط": "LAND", "توقف": "STOP", "اتبعني": "START_FOLLOW",
             "ارجع": "GO_HOME", "انتظر": "WAIT", "سيلفي": "SELFIE", "دوران": "TORNADO",
+            
+            # --- Nepali commands (नेपाली) ---
+            "उड्नुहोस्": "TAKEOFF", "ओर्लिनुहोस्": "LAND", "रोक्नुहोस्": "STOP", "पछ्याउनुहोस्": "START_FOLLOW",
+            "फर्किनुहोस्": "GO_HOME", "पर्खनुहोस्": "WAIT", "सेल्फी": "SELFIE", "चक्रवात": "TORNADO",
             
             # --- Hindi commands (हिन्दी) ---
             "उड़ान": "TAKEOFF", "उड़ो": "TAKEOFF", "लैंड": "LAND", "रुको": "STOP", "पीछा": "START_FOLLOW",

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cognitive Entanglement - Advanced Dual-Phone Tele-Robotics Dashboard</title>
+    <title>Cognitive Entanglement - Advanced Space-Grade Avionics Glass Cockpit</title>
     
     <!-- Scripts & Frameworks -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
@@ -16,7 +16,7 @@
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #030712;
+            background-color: #03050a;
             color: #f3f4f6;
             margin: 0;
             padding: 10px;
@@ -29,68 +29,74 @@
         header {
             text-align: center;
             margin-bottom: 10px;
+            text-transform: uppercase;
         }
         h1 {
-            color: #3b82f6;
+            color: #00f0ff;
             margin: 0;
             font-weight: 800;
-            font-size: 24px;
-            letter-spacing: -0.05em;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            font-size: 26px;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
         }
         p {
-            color: #9ca3af;
-            font-size: 12px;
+            color: #64748b;
+            font-size: 11px;
             margin-top: 3px;
+            letter-spacing: 0.1em;
         }
         .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: 15px;
             width: 100%;
             max-width: 1440px;
         }
         .panel {
-            background-color: #111827;
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
             border-radius: 14px;
             padding: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             border: 1px solid #1f2937;
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
         .panel h3 {
             margin-top: 0;
             color: #f9fafb;
-            font-size: 14px;
-            letter-spacing: 0.05em;
+            font-size: 13px;
+            letter-spacing: 0.1em;
             align-self: flex-start;
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid #00f0ff;
             padding-bottom: 5px;
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            text-transform: uppercase;
         }
         /* Setup Wizard CSS */
         .wizard-panel {
-            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-            border: 1px solid #4338ca;
+            background: linear-gradient(135deg, #1e1b4b 0%, #03050a 100%);
+            border: 1px solid #3b82f6;
             border-radius: 10px;
             padding: 12px;
             width: 100%;
+            max-width: 1440px;
             box-sizing: border-box;
             margin-bottom: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            box-shadow: 0 0 15px rgba(59, 130, 248, 0.3);
         }
         .wizard-title {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #a5b4fc;
+            letter-spacing: 0.15em;
+            color: #3b82f6;
             font-weight: bold;
         }
         .wizard-prompt {
@@ -99,6 +105,7 @@
             font-weight: bold;
             text-align: center;
             margin-top: 5px;
+            font-family: monospace;
         }
         .wizard-steps {
             display: flex;
@@ -110,16 +117,16 @@
         .wizard-dot {
             width: 24px;
             height: 6px;
-            background-color: #334155;
+            background-color: #1e293b;
             border-radius: 3px;
             transition: all 0.3s;
         }
         .wizard-dot.active {
-            background-color: #818cf8;
-            box-shadow: 0 0 8px rgba(129, 140, 248, 0.6);
+            background-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 248, 0.6);
         }
         .wizard-dot.completed {
-            background-color: #34d399;
+            background-color: #00f0ff;
         }
         #video-container {
             position: relative;
@@ -128,6 +135,7 @@
             background-color: #000;
             border-radius: 10px;
             overflow: hidden;
+            border: 1px solid #1e293b;
         }
         video {
             display: none;
@@ -142,10 +150,25 @@
         }
         #simulator-panel {
             width: 100%;
-            height: 260px;
-            background-color: #030712;
+            height: 240px;
+            background-color: #020408;
             border-radius: 10px;
-            border: 1px dashed #374151;
+            border: 1px solid #1f2937;
+        }
+        /* Glass Cockpit HUD Canvas */
+        #hud-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+            background-color: #020408;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+            overflow: hidden;
+        }
+        canvas#hud_canvas {
+            width: 100%;
+            height: 100%;
         }
         /* Draw-to-Fly Canvas CSS */
         .draw-panel {
@@ -157,10 +180,10 @@
         }
         canvas#draw_canvas {
             width: 100%;
-            height: 140px;
-            background-color: #020617;
+            height: 120px;
+            background-color: #020408;
             border-radius: 10px;
-            border: 1px solid #1e293b;
+            border: 1px solid #1f2937;
             cursor: crosshair;
         }
         .telemetry-grid {
@@ -171,22 +194,23 @@
             margin-bottom: 12px;
         }
         .telemetry-card {
-            background-color: #1f2937;
+            background-color: #0b0f19;
             padding: 10px;
             border-radius: 8px;
-            border: 1px solid #374151;
+            border: 1px solid #1e293b;
         }
         .telemetry-card div:first-child {
-            font-size: 9px;
+            font-size: 8px;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: #64748b;
             letter-spacing: 0.1em;
         }
         .telemetry-card div:last-child {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
-            color: #10b981;
+            color: #00f0ff;
             margin-top: 3px;
+            font-family: monospace;
         }
         .phone-modes {
             display: flex;
@@ -197,71 +221,176 @@
         .phone-btn {
             flex: 1;
             padding: 10px;
-            font-size: 12px;
-            background-color: #1f2937;
-            border: 2px solid #374151;
-            color: #9ca3af;
+            font-size: 11px;
+            background-color: #0b0f19;
+            border: 1px solid #1e293b;
+            color: #64748b;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: bold;
             text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .phone-btn.active {
-            background-color: #10b981;
+            background-color: #3b82f6;
             color: white;
-            border-color: #34d399;
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            border-color: #60a5fa;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
         }
         .phone-btn.active.drone {
-            background-color: #3b82f6;
-            border-color: #60a5fa;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+            background-color: #00f0ff;
+            border-color: #00f0ff;
+            color: #03050a;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
         }
         button.action-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
             padding: 10px;
             border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            font-size: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+        button.action-btn:hover {
+            background-color: #38bdf8;
+            color: #03050a;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
         .log-box {
             width: 100%;
             height: 100px;
-            background-color: #030712;
+            background-color: #020408;
             border-radius: 8px;
             padding: 8px;
             font-family: monospace;
             font-size: 11px;
             overflow-y: auto;
-            border: 1px solid #1f2937;
+            border: 1px solid #1e293b;
             box-sizing: border-box;
-            color: #34d399;
+            color: #00f0ff;
         }
         .status-badge {
             background-color: #ef4444;
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
         }
         .status-badge.authorized {
-            background-color: #10b981;
+            background-color: #00f0ff;
+            color: #03050a;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
         }
-        /* Call Interface Overlay Styles */
+        /* Grid selectors for Swarms & ActiveTrack */
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .selector-item {
+            background-color: #0b0f19;
+            border: 1px solid #1e293b;
+            color: #64748b;
+            padding: 6px;
+            font-size: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .selector-item.active {
+            background-color: #00f0ff;
+            color: #03050a;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+        /* Keyboard Diagnostic Overlays */
+        .keyboard-hud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-size: 10px;
+            color: #64748b;
+            background-color: #0b0f19;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+            border: 1px solid #1e293b;
+        }
+        .key-badge {
+            background: #020408;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #64748b;
+            font-weight: bold;
+            border: 1px solid #1e293b;
+            transition: all 0.1s;
+        }
+        .key-badge.pressed {
+            background-color: #00f0ff;
+            color: #03050a;
+            border-color: #00f0ff;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
+        /* Mobile Tactile Directional Key Buttons */
+        .mobile-keypad-panel {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 10px;
+            gap: 8px;
+        }
+        .keypad-row {
+            display: flex;
+            gap: 8px;
+        }
+        .keypad-btn {
+            width: 50px;
+            height: 50px;
+            background-color: #0b0f19;
+            border: 2px solid #1e293b;
+            border-radius: 8px;
+            color: #f3f4f6;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            touch-action: none;
+            transition: all 0.1s;
+        }
+        .keypad-btn:active {
+            background-color: #00f0ff;
+            color: #03050a;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
         .call-hud {
             display: flex;
             flex-direction: column;
             gap: 8px;
             width: 100%;
-            background-color: #1f2937;
-            border: 1px solid #374151;
+            background-color: #0b0f19;
+            border: 1px solid #1e293b;
             padding: 12px;
             border-radius: 10px;
             margin-top: 10px;
@@ -289,114 +418,13 @@
         .call-pulse {
             width: 10px;
             height: 10px;
-            background-color: #6b7280;
+            background-color: #1e293b;
             border-radius: 50%;
             display: inline-block;
         }
         .call-pulse.active {
-            background-color: #10b981;
+            background-color: #00f0ff;
             animation: pulse 1.5s infinite;
-        }
-        #remote-video-feed {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            background: #000;
-            display: none;
-        }
-        #remote-video-feed.visible {
-            display: block;
-            margin-top: 10px;
-            border: 2px solid #3b82f6;
-        }
-        /* Grid selectors for Swarms & ActiveTrack */
-        .selector-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            width: 100%;
-            margin-top: 5px;
-        }
-        .selector-item {
-            background-color: #1f2937;
-            border: 1px solid #374151;
-            color: #9ca3af;
-            padding: 6px;
-            font-size: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        .selector-item.active {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #60a5fa;
-        }
-        /* Keyboard Diagnostic Overlays */
-        .keyboard-hud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            font-size: 10px;
-            color: #9ca3af;
-            background-color: #111827;
-            padding: 10px;
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 10px;
-            border: 1px solid #1e293b;
-        }
-        .key-badge {
-            background: #1f2937;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #9ca3af;
-            font-weight: bold;
-            border: 1px solid #374151;
-            transition: all 0.1s;
-        }
-        .key-badge.pressed {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #60a5fa;
-            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
-        }
-        /* Mobile Tactile Directional Key Buttons */
-        .mobile-keypad-panel {
-            display: none; /* Shows on Touch Mode */
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            margin-top: 10px;
-            gap: 8px;
-        }
-        .keypad-row {
-            display: flex;
-            gap: 8px;
-        }
-        .keypad-btn {
-            width: 50px;
-            height: 50px;
-            background-color: #1f2937;
-            border: 2px solid #374151;
-            border-radius: 8px;
-            color: #f3f4f6;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-            touch-action: none;
-        }
-        .keypad-btn:active {
-            background-color: #3b82f6;
-            border-color: #60a5fa;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
     </style>
 </head>
@@ -404,7 +432,7 @@
 
     <header>
         <h1>🌌 COGNITIVE ENTANGLEMENT</h1>
-        <p>Tactile Phone Keys • Laptop Key Diagnostic HUD • WebRTC Swarm Controller</p>
+        <p>AEROSPATIAL GLASS COCKPIT • FLIGHT SYSTEMS HUD • SWARM CONTROLLER</p>
     </header>
 
     <!-- Calibration Wizard Setup HUD -->
@@ -435,7 +463,7 @@
                 <div class="call-controls">
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <div class="call-pulse" id="call-pulse-node"></div>
-                        <span id="call-status-txt" style="font-size:11px; color:#9ca3af; font-weight:bold;">Call Offline</span>
+                        <span id="call-status-txt" style="font-size:11px; color:#64748b; font-weight:bold;">Call Offline</span>
                     </div>
                     <button class="call-btn" id="btn-call" onclick="toggleFPVCall()">Place WebRTC Call</button>
                 </div>
@@ -450,7 +478,7 @@
             
             <div style="display: flex; gap: 5px; width: 100%;">
                 <button class="action-btn" id="btn-init">Start Local Camera</button>
-                <button class="action-btn" style="background: #a855f7;" id="btn-gps" onclick="toggleGPSTracking()">GPS Track Location</button>
+                <button class="action-btn" style="background: #a855f7; border-color:#a855f7; color:#fff;" id="btn-gps" onclick="toggleGPSTracking()">GPS Track Location</button>
             </div>
             
             <!-- Laptop Key Diagnostic HUD -->
@@ -483,14 +511,14 @@
                     <button class="keypad-btn" id="phone-key-d" onmousedown="setPhoneKey('vy', 0.5)" onmouseup="clearPhoneKey('vy')" ontouchstart="setPhoneKey('vy', 0.5)" ontouchend="clearPhoneKey('vy')">▶</button>
                 </div>
                 <div class="keypad-row">
-                    <button class="keypad-btn" id="phone-key-yawl" style="font-size:14px;" onmousedown="setPhoneKey('vyaw', -0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', -0.6)" ontouchend="clearPhoneKey('vyaw')">Turn L</button>
-                    <button class="keypad-btn" id="phone-key-yawr" style="font-size:14px;" onmousedown="setPhoneKey('vyaw', 0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', 0.6)" ontouchend="clearPhoneKey('vyaw')">Turn R</button>
+                    <button class="keypad-btn" id="phone-key-yawl" style="font-size:12px;" onmousedown="setPhoneKey('vyaw', -0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', -0.6)" ontouchend="clearPhoneKey('vyaw')">Turn L</button>
+                    <button class="keypad-btn" id="phone-key-yawr" style="font-size:12px;" onmousedown="setPhoneKey('vyaw', 0.6)" onmouseup="clearPhoneKey('vyaw')" ontouchstart="setPhoneKey('vyaw', 0.6)" ontouchend="clearPhoneKey('vyaw')">Turn R</button>
                 </div>
             </div>
 
             <!-- Voice-Guided ActiveTrack Target Selector -->
             <div style="width: 100%; margin-top: 15px;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #a5b4fc; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">🎯 Onboard ActiveTrack Target</div>
+                <div style="font-size: 11px; text-transform: uppercase; color: #00f0ff; font-weight: bold; border-bottom: 1px solid #1e293b; padding-bottom: 3px; width:100%;">🎯 Onboard ActiveTrack Target</div>
                 <div class="selector-grid">
                     <button class="selector-item active" id="track-none" onclick="setActiveTrackTarget('CANCEL')">None (Human)</button>
                     <button class="selector-item" id="track-ball" onclick="setActiveTrackTarget('ball')">Ball</button>
@@ -502,10 +530,14 @@
             </div>
         </div>
 
-        <!-- 2. 3D Digital Swarm & Draw-to-Fly -->
+        <!-- 2. SpaceX Cockpit HUD (Telemetry indications) -->
         <div class="panel">
-            <h3>✈️ Swarm Formation 3D Twin</h3>
-            <div id="simulator-panel"></div>
+            <h3>✈️ SpaceX Glass Cockpit Flight HUD</h3>
+            
+            <!-- Real-time dynamic attitude indicator, compass, and vertical tapes -->
+            <div id="hud-canvas-container">
+                <canvas id="hud_canvas"></canvas>
+            </div>
 
             <!-- Swarm Formation Shifter Selector -->
             <div style="width: 100%; margin-top: 10px;">
@@ -522,33 +554,30 @@
                 <div style="font-size: 11px; text-transform: uppercase; color: #a5b4fc; font-weight: bold; margin-bottom: 5px;">✍️ Draw-To-Fly Curve Path</div>
                 <canvas id="draw_canvas"></canvas>
                 <div style="display: flex; gap: 5px; width: 100%; margin-top: 5px;">
-                    <button class="action-btn" style="background: #3b82f6; margin-top: 0; padding: 6px;" onclick="executeDrawPath()">Execute Flight Path</button>
-                    <button class="action-btn" style="background: #4b5563; margin-top: 0; padding: 6px;" onclick="clearDrawPath()">Clear Canvas</button>
+                    <button class="action-btn" style="background: #3b82f6; border-color:#3b82f6; margin-top: 0; padding: 6px; color:#fff;" onclick="executeDrawPath()">Execute Flight Path</button>
+                    <button class="action-btn" style="background: #4b5563; border-color:#4b5563; margin-top: 0; padding: 6px; color:#fff;" onclick="clearDrawPath()">Clear Canvas</button>
                 </div>
-            </div>
-            
-            <div style="display: flex; gap: 5px; width: 100%; margin-top: 10px;">
-                <button class="action-btn" style="background: #10b981;" onclick="triggerAction('TAKEOFF')">Takeoff</button>
-                <button class="action-btn" style="background: #ef4444;" onclick="triggerAction('LAND')">Land</button>
-                <button class="action-btn" style="background: #f59e0b;" onclick="triggerAction('STOP')">Safety Stop</button>
             </div>
         </div>
 
-        <!-- 3. Metrics Matrix -->
+        <!-- 3. Telemetry Matrix -->
         <div class="panel">
             <h3>📊 Telemetry Matrix</h3>
             <div class="telemetry-grid">
                 <div class="telemetry-card">
                     <div>System State</div>
-                    <div id="state-txt" style="color: #60a5fa;">IDLE</div>
+                    <div id="state-txt" style="color: #00f0ff;">IDLE</div>
                 </div>
                 <div class="telemetry-card">
                     <div>Gesture / ASL Sign</div>
                     <div id="gesture-txt" style="color: #10b981;">NONE</div>
                 </div>
                 <div class="telemetry-card">
-                    <div>Flight Speed scale</div>
-                    <div id="speed-scale-txt">1.0x (Normal)</div>
+                    <div>Onboard Swarm Twin</div>
+                    <div id="simulator-panel-card" style="height: 60px; overflow:hidden;">
+                        <!-- Embed small secondary inline WebGL renderer -->
+                        <div id="simulator-panel" style="height: 100%; width: 100%;"></div>
+                    </div>
                 </div>
                 <div class="telemetry-card">
                     <div>Drone Battery</div>
@@ -572,7 +601,7 @@
         const logBox = document.getElementById('log-box');
 
         // --- Core 2-Phone Settings ---
-        let controlMode = "AI"; // AI, KEYBOARD, TOUCH
+        let controlMode = "AI"; 
         let phoneRole = "PILOT"; 
         let peerConnection = null;
         let localStream = null;
@@ -674,11 +703,11 @@
         dCanvas.width = dCanvas.clientWidth;
         dCanvas.height = dCanvas.clientHeight;
 
-        dCtx.strokeStyle = '#818cf8';
+        dCtx.strokeStyle = '#00f0ff';
         dCtx.lineWidth = 3;
         dCtx.lineCap = 'round';
         dCtx.shadowBlur = 10;
-        dCtx.shadowColor = '#818cf8';
+        dCtx.shadowColor = '#00f0ff';
 
         function startDrawing(e) {
             isDrawing = true;
@@ -863,16 +892,196 @@
             requestAnimationFrame(processFrame);
         }
 
+        // --- 2. Real-Time Glass Cockpit HUD Canvas Renderer (C++ Flight Equivalent) ---
+        const hCanvas = document.getElementById('hud_canvas');
+        const hCtx = hCanvas.getContext('2d');
+        hCanvas.width = hCanvas.clientWidth;
+        hCanvas.height = 200;
+
+        let rollAngle = 0.0;     
+        let pitchOffset = 0.0;   
+        let headingYaw = 0.0;    
+        let altitudeMeters = 0.0; 
+        
+        // Precise Real-Time Aerospace Math:
+        let lastAltitude = 0.0;
+        let lastAltitudeTime = Date.now();
+        let climbRate = 0.0;      // Vertical Speed (m/s)
+        let estimatedGForce = 1.0; // G-force (Gs)
+
+        function drawGlassCockpitHUD() {
+            const cx = hCanvas.width / 2.0;
+            const cy = hCanvas.height / 2.0;
+            const now = Date.now();
+            const dt = (now - lastAltitudeTime) / 1000.0;
+
+            // Calculate precise Climb Rate (VSI) and estimated G-Force
+            if (dt >= 0.1) {
+                climbRate = (altitudeMeters - lastAltitude) / dt;
+                
+                // G-Force estimate based on vertical acceleration: G = 1.0 + (accel / g)
+                const verticalAccel = (climbRate - (lastAltitude - altitudeMeters)) / dt;
+                estimatedGForce = Math.max(0.2, Math.min(6.0, 1.0 + Math.abs(verticalAccel / 9.81)));
+
+                lastAltitude = altitudeMeters;
+                lastAltitudeTime = now;
+            }
+
+            hCtx.clearRect(0, 0, hCanvas.width, hCanvas.height);
+
+            // Level 1: Draw Artificial Horizon (Sky/Ground ball)
+            hCtx.save();
+            hCtx.translate(cx, cy);
+            hCtx.rotate(-rollAngle * Math.PI / 180.0);
+            hCtx.translate(0, pitchOffset);
+
+            // Sky (Light Blue)
+            hCtx.fillStyle = "rgba(0, 240, 255, 0.15)";
+            hCtx.fillRect(-300, -300, 600, 300);
+            // Ground (Brownish/Grey)
+            hCtx.fillStyle = "rgba(100, 116, 139, 0.2)";
+            hCtx.fillRect(-300, 0, 600, 300);
+
+            // Pitch ladder lines
+            hCtx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+            hCtx.lineWidth = 1.5;
+            for (let i = -30; i <= 30; i += 10) {
+                if (i !== 0) {
+                    const yOffset = i * -2.0;
+                    hCtx.beginPath();
+                    hCtx.moveTo(-30, yOffset);
+                    hCtx.lineTo(30, yOffset);
+                    hCtx.stroke();
+                    hCtx.fillStyle = "rgba(0, 240, 255, 0.6)";
+                    hCtx.font = "8px monospace";
+                    hCtx.fillText(i, -45, yOffset + 3);
+                }
+            }
+            hCtx.restore();
+
+            // Level 2: Draw Fixed Aircraft Indicator (Symbol in Center)
+            hCtx.strokeStyle = "#00f0ff";
+            hCtx.lineWidth = 3;
+            hCtx.shadowBlur = 8;
+            hCtx.shadowColor = "#00f0ff";
+            hCtx.beginPath();
+            hCtx.moveTo(cx - 40, cy);
+            hCtx.lineTo(cx - 15, cy);
+            hCtx.lineTo(cx - 10, cy + 10);
+            hCtx.moveTo(cx + 40, cy);
+            hCtx.lineTo(cx + 15, cy);
+            hCtx.lineTo(cx + 10, cy + 10);
+            hCtx.moveTo(cx, cy - 8);
+            hCtx.lineTo(cx, cy + 8);
+            hCtx.stroke();
+            hCtx.shadowBlur = 0; // reset
+
+            // Level 3: Draw Heading Yaw Compass Tape (At the top)
+            hCtx.fillStyle = "#020408";
+            hCtx.fillRect(0, 0, hCanvas.width, 25);
+            hCtx.strokeStyle = "rgba(0, 240, 255, 0.3)";
+            hCtx.beginPath();
+            hCtx.moveTo(0, 25);
+            hCtx.lineTo(hCanvas.width, 25);
+            hCtx.stroke();
+
+            hCtx.fillStyle = "#00f0ff";
+            hCtx.font = "10px monospace";
+            hCtx.textAlign = "center";
+            for (let i = -180; i <= 180; i += 10) {
+                const angleDiff = (i - headingYaw);
+                const xPos = cx + angleDiff * 2.0;
+                if (xPos > 10 && xPos < hCanvas.width - 10) {
+                    hCtx.beginPath();
+                    hCtx.moveTo(xPos, 20);
+                    hCtx.lineTo(xPos, 25);
+                    hCtx.stroke();
+                    if (i % 30 === 0) {
+                        let label = i;
+                        if (i < 0) label = 360 + i;
+                        hCtx.fillText(label, xPos, 15);
+                    }
+                }
+            }
+            // Draw Center Heading Index marker (White triangle)
+            hCtx.fillStyle = "#fff";
+            hCtx.beginPath();
+            hCtx.moveTo(cx, 25);
+            hCtx.lineTo(cx - 5, 18);
+            hCtx.lineTo(cx + 5, 18);
+            hCtx.fill();
+
+            // Level 4: Draw Vertical Altitude Speed Indicator (Right tape)
+            hCtx.fillStyle = "#020408";
+            hCtx.fillRect(hCanvas.width - 55, 30, 55, hCanvas.height - 30);
+            hCtx.strokeStyle = "rgba(0, 240, 255, 0.3)";
+            hCtx.beginPath();
+            hCtx.moveTo(hCanvas.width - 55, 30);
+            hCtx.lineTo(hCanvas.width - 55, hCanvas.height);
+            hCtx.stroke();
+
+            hCtx.fillStyle = "#00f0ff";
+            hCtx.font = "9px monospace";
+            hCtx.textAlign = "left";
+            for (let i = -10; i <= 10; i += 1) {
+                const altDiff = (i - altitudeMeters);
+                const yPos = cy + altDiff * -25.0; 
+                if (yPos > 35 && yPos < hCanvas.height - 10) {
+                    hCtx.beginPath();
+                    hCtx.moveTo(hCanvas.width - 55, yPos);
+                    hCtx.lineTo(hCanvas.width - 48, yPos);
+                    hCtx.stroke();
+                    hCtx.fillText(`${i.toFixed(1)}m`, hCanvas.width - 43, yPos + 3);
+                }
+            }
+            // Draw Target Alt marker
+            hCtx.fillStyle = "rgba(0, 240, 255, 0.2)";
+            hCtx.fillRect(hCanvas.width - 55, cy - 8, 55, 16);
+            hCtx.strokeStyle = "#00f0ff";
+            hCtx.strokeRect(hCanvas.width - 55, cy - 8, 55, 16);
+            hCtx.fillStyle = "#fff";
+            hCtx.font = "bold 9px monospace";
+            hCtx.fillText(`${altitudeMeters.toFixed(2)}m`, hCanvas.width - 50, cy + 3);
+
+            // Level 5: Draw real-time G-Force and VSI dials (SpaceX Specific additions!)
+            hCtx.fillStyle = "#020408";
+            hCtx.fillRect(0, 30, 65, hCanvas.height - 30);
+            hCtx.strokeStyle = "rgba(0, 240, 255, 0.3)";
+            hCtx.beginPath();
+            hCtx.moveTo(65, 30);
+            hCtx.lineTo(65, hCanvas.height);
+            hCtx.stroke();
+
+            // Draw G-Force meter text
+            hCtx.fillStyle = "#00f0ff";
+            hCtx.font = "bold 9px monospace";
+            hCtx.textAlign = "left";
+            hCtx.fillText("G-FORCE", 5, 45);
+            hCtx.fillStyle = (estimatedGForce > 3.0) ? "#ef4444" : "#10b981";
+            hCtx.font = "bold 13px monospace";
+            hCtx.fillText(`${estimatedGForce.toFixed(2)} Gs`, 5, 60);
+
+            // Draw Vertical Climb rate text (VSI)
+            hCtx.fillStyle = "#00f0ff";
+            hCtx.font = "bold 9px monospace";
+            hCtx.fillText("VSI SINK", 5, 85);
+            hCtx.fillStyle = (climbRate > 0.1) ? "#10b981" : (climbRate < -0.1) ? "#ef4444" : "#64748b";
+            hCtx.font = "bold 11px monospace";
+            hCtx.fillText(`${climbRate > 0 ? "+" : ""}${climbRate.toFixed(2)} m/s`, 5, 100);
+
+            requestAnimationFrame(drawGlassCockpitHUD);
+        }
+
         // --- ThreeJS 3D Swarm Simulator Setup ---
         const simPanel = document.getElementById('simulator-panel');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x030712);
-        const camera = new THREE.PerspectiveCamera(60, simPanel.clientWidth / 260, 0.1, 1000);
+        scene.background = new THREE.Color(0x020408);
+        const camera = new THREE.PerspectiveCamera(60, simPanel.clientWidth / 60, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(simPanel.clientWidth, 260);
+        renderer.setSize(simPanel.clientWidth, 60);
         simPanel.appendChild(renderer.domElement);
 
-        const gridHelper = new THREE.GridHelper(30, 30, 0x3b82f6, 0x1f2937);
+        const gridHelper = new THREE.GridHelper(30, 30, 0x00f0ff, 0x1f2937);
         scene.add(gridHelper);
 
         const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -901,7 +1110,7 @@
             return droneGroup;
         };
 
-        const leaderDrone = createDroneMesh(0x3b82f6);
+        const leaderDrone = createDroneMesh(0x00f0ff);
         scene.add(leaderDrone);
         const follower1 = createDroneMesh(0x10b981);
         const follower2 = createDroneMesh(0x10b981);
@@ -929,13 +1138,12 @@
             log(`[CONTROL]: Manual action dispatched: ${action}`);
         }
 
-        // --- Laptop Keys Overrides with Diagnostic HUD ---
+        // --- Laptop Keys Overrides ---
         const keysPressed = {};
         window.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             keysPressed[key] = true;
             
-            // Light up virtual key badge on the dashboard!
             const badge = document.getElementById(`key-${key}`);
             if (badge) badge.classList.add('pressed');
 
@@ -948,7 +1156,6 @@
             const key = e.key.toLowerCase();
             keysPressed[key] = false;
             
-            // Fade virtual key badge
             const badge = document.getElementById(`key-${key}`);
             if (badge) badge.classList.remove('pressed');
         });
@@ -1085,6 +1292,10 @@
                 else if (text.includes("orbit carousel")) lastVoiceCommand = "ORBIT";
                 else if (text.includes("selfie")) lastVoiceCommand = "SELFIE";
                 else if (text.includes("find") || text.includes("chirp")) lastVoiceCommand = "FIND";
+                else if (text.includes("immelmann")) lastVoiceCommand = "IMMELMANN";
+                else if (text.includes("split s")) lastVoiceCommand = "SPLITS";
+                else if (text.includes("barrel roll")) lastVoiceCommand = "BARRELROLL";
+                else if (text.includes("chandelle")) lastVoiceCommand = "CHANDELLE";
             };
             rec.start();
         }
@@ -1120,7 +1331,7 @@
                 if (phoneRole === "PILOT") {
                     for (const landmarks of results.multiHandLandmarks) {
                         for (const landmark of landmarks) {
-                            ctx.fillStyle = "#3b82f6";
+                            ctx.fillStyle = "#00f0ff";
                             ctx.beginPath();
                             ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 2.5, 0, 2 * Math.PI);
                             ctx.fill();
@@ -1195,7 +1406,7 @@
 
             if (socket.connected && (phoneRole === "PILOT" || (phoneRole === "DRONE" && callActive))) {
                 socket.emit('telemetry_update', {
-                    gesture: activeGesture,
+                    gesture: detectedGesture,
                     morse_cmd: "NONE",
                     voice_cmd: activeVoice,
                     body_state: (activeVectors.vx !== 0 || activeVectors.vy !== 0 || activeVectors.vz !== 0 || activeVectors.vyaw !== 0) ? "MOVING" : "STOPPED",
@@ -1282,6 +1493,12 @@
             const leader = data.leader;
             isFlying = leader.is_flying;
             
+            // --- Sync Avionics Glass Cockpit HUD metrics ---
+            altitudeMeters = leader.position.z;
+            headingYaw = leader.yaw;
+            pitchOffset = leader.position.x * -10.0; // map displacement to pitch ladder
+            rollAngle = leader.yaw * 0.5;            // map rotation to banking roll
+
             // Sync battery meter
             const bTxt = document.getElementById('battery-txt');
             bTxt.innerText = `${leader.battery}%`;

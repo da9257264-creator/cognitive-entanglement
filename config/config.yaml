@@ -4,6 +4,14 @@ system:
   debug: true
   swarm_size: 3     # Leader + 2 Followers
 
+# Dynamic Physical Properties (Gain Scheduling & Telemetry Calibration)
+# Valid for all classes of aircraft: from 80g Toy drones to 15kg heavy lifters!
+physical_properties:
+  mass_kg: 1.2                         # Aircraft mass (0.08 for Tello, 1.2 for DIY, up to 15.0)
+  inertia_tensor_diagonal: [0.012, 0.012, 0.022] # [Ixx, Iyy, Izz] in kg*m^2
+  max_thrust_newtons: 32.0             # Motor thrust capability (scales with mass)
+  parasitic_drag_coefficient: 1.15     # Aero drag coefficient (Cd)
+
 security:
   biometrics_enabled: true
   voice_biometrics_enabled: true

@@ -7,6 +7,7 @@ class TricksEngine:
     Advanced Trick & Maneuver Execution Engine.
     Triggers physical maneuvers on DJI Tello or coordinates continuous
     complex trajectory equations on the PX4 or virtual 3D simulator backends.
+    Supports high-performance aeronautical aerobatics (Immelmann, Split-S, Barrel Roll).
     """
     def __init__(self, drone_controller):
         self.drone = drone_controller
@@ -35,6 +36,14 @@ class TricksEngine:
             self._execute_selfie_orbit()
         elif trick_name == "beacon_chirp":
             self._execute_beacon_chirp()
+        elif trick_name == "immelmann_turn":
+            self._execute_immelmann_turn()
+        elif trick_name == "split_s":
+            self._execute_split_s()
+        elif trick_name == "barrel_roll":
+            self._execute_barrel_roll()
+        elif trick_name == "chandelle":
+            self._execute_chandelle()
         else:
             self.logger.warning(f"Unrecognized trick profile: {trick_name}")
 
@@ -45,7 +54,6 @@ class TricksEngine:
             except Exception as e:
                 self.logger.error(f"Physical flip failed: {e}")
         else:
-            self.logger.info(f"Simulating aerial flip: direction={direction}")
             self.drone.set_velocities(0, 0, 0.8, 0)
             time.sleep(0.5)
             roll = 1.5 if direction == 'r' else -1.5 if direction == 'l' else 0.0
@@ -55,14 +63,12 @@ class TricksEngine:
             self.drone.stop()
 
     def _execute_tornado_spin(self):
-        self.logger.info("Executing TORNADO SPIN: Spiraling Takeoff.")
         for _ in range(15):
             self.drone.set_velocities(0.1, 0, 0.6, 2.0)
             time.sleep(0.1)
         self.drone.stop()
 
     def _execute_victory_wobble(self):
-        self.logger.info("Executing VICTORY WOBBLE DANCE.")
         for _ in range(2):
             self.drone.set_velocities(0, 0.4, 0, 0)
             time.sleep(0.2)
@@ -71,7 +77,6 @@ class TricksEngine:
         self.drone.stop()
 
     def _execute_eagle_glide(self):
-        self.logger.info("Executing EAGLE SINE-GLIDE.")
         start_time = time.time()
         while time.time() - start_time < 3.0:
             elapsed = time.time() - start_time
@@ -81,7 +86,6 @@ class TricksEngine:
         self.drone.stop()
 
     def _execute_orbit_carousel(self):
-        self.logger.info("Executing INWARD ORBIT CAROUSEL.")
         start_time = time.time()
         omega = 1.5
         radius = 1.0
@@ -95,14 +99,10 @@ class TricksEngine:
         self.drone.stop()
 
     def _execute_selfie_orbit(self):
-        """Drone flies back 2m, climbs 0.5m, banks to frame a photo, and orbits slowly."""
-        self.logger.info("Executing SELFIE ORBIT. Positioning drone for portrait...")
-        # Step 1: Back away and gain altitude
         self.drone.set_velocities(-0.4, 0.0, 0.2, 0.0)
         time.sleep(1.5)
         self.drone.stop()
         
-        # Step 2: Perform a slow orbit around operator
         start_time = time.time()
         omega = 0.8
         radius = 2.0
@@ -116,12 +116,52 @@ class TricksEngine:
         self.drone.stop()
 
     def _execute_beacon_chirp(self):
-        """Simulates chirping the drone motors or flashing LEDs to locate the aircraft."""
-        self.logger.info("Executing ACOUSTIC BEACON CHIRP. Broadcasting location find signals...")
-        # Pulse motor speeds clockwise/counter-clockwise to produce a distinct chirp noise
         for _ in range(3):
             self.drone.set_velocities(0, 0, 0, 1.5)
             time.sleep(0.15)
             self.drone.set_velocities(0, 0, 0, -1.5)
             time.sleep(0.15)
+        self.drone.stop()
+
+    def _execute_immelmann_turn(self):
+        """Acrobatic half-loop climb followed by 180-degree roll to recover level opposite flight."""
+        self.logger.info("AEROBATICS: Commencing IMMELMANN TURN.")
+        # Step 1: Rapid climb half-loop (vz=0.8, vx=0.3)
+        self.drone.set_velocities(0.3, 0.0, 0.8, 0.0)
+        time.sleep(1.5)
+        
+        # Step 2: 180-degree roll recovery (roll=1.5, yaw=2.0)
+        self.drone.set_velocities(0.0, 1.5, 0.0, 2.0)
+        time.sleep(0.8)
+        self.drone.stop()
+
+    def _execute_split_s(self):
+        """Rolls 180 degrees into inverted flight, then executes descending half-loop."""
+        self.logger.info("AEROBATICS: Commencing SPLIT-S tactical dive.")
+        # Step 1: Invert roll (roll=1.8)
+        self.drone.set_velocities(0.0, 1.8, 0.0, 0.0)
+        time.sleep(0.6)
+        
+        # Step 2: Descending dive half-loop (vz=-0.8, vx=0.4)
+        self.drone.set_velocities(0.4, 0.0, -0.8, 0.0)
+        time.sleep(1.2)
+        self.drone.stop()
+
+    def _execute_barrel_roll(self):
+        """Helical 360-degree roll forward gliding maneuver."""
+        self.logger.info("AEROBATICS: Commencing BARREL ROLL.")
+        start_time = time.time()
+        while time.time() - start_time < 2.0:
+            elapsed = time.time() - start_time
+            # Rotate roll sinusoidally while moving forward
+            roll = 1.5 * math.sin(math.pi * elapsed)
+            self.drone.set_velocities(0.5, roll, 0.0, 0.0)
+            time.sleep(0.1)
+        self.drone.stop()
+
+    def _execute_chandelle(self):
+        """High-performance climbing turn, gaining altitude while turning 180 degrees."""
+        self.logger.info("AEROBATICS: Commencing CHANDELLE climbing turn.")
+        self.drone.set_velocities(0.4, 0.0, 0.5, 1.5) # Climb while yawing
+        time.sleep(2.0)
         self.drone.stop()

@@ -225,7 +225,7 @@ class FusionEngine:
             self.tricks.execute_trick(self.MORSE_TRICKS_MAP[morse_cmd])
             return
 
-        if voice_cmd in ["FRONT_FLIP", "BACK_FLIP", "LEFT_FLIP", "RIGHT_FLIP", "TORNADO", "DANCE", "GLIDE", "ORBIT", "SELFIE", "FIND"]:
+        if voice_cmd in ["FRONT_FLIP", "BACK_FLIP", "LEFT_FLIP", "RIGHT_FLIP", "TORNADO", "DANCE", "GLIDE", "ORBIT", "SELFIE", "FIND", "IMMELMANN", "SPLITS", "BARRELROLL", "CHANDELLE"]:
             trick_map = {
                 "FRONT_FLIP": "front_flip",
                 "BACK_FLIP": "back_flip",
@@ -236,7 +236,11 @@ class FusionEngine:
                 "GLIDE": "eagle_glide",
                 "ORBIT": "orbit_carousel",
                 "SELFIE": "selfie_orbit",
-                "FIND": "beacon_chirp"
+                "FIND": "beacon_chirp",
+                "IMMELMANN": "immelmann_turn",
+                "SPLITS": "split_s",
+                "BARRELROLL": "barrel_roll",
+                "CHANDELLE": "chandelle"
             }
             self.tricks.execute_trick(trick_map[voice_cmd])
             return
