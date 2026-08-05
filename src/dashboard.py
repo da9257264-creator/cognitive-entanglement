@@ -57,7 +57,6 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     # Remove sessions on disconnect to clean up ports
-    global active_sessions
     for role, sid in list(active_sessions.items()):
         if sid == sid: # matches current
             active_sessions[role] = None
@@ -66,7 +65,6 @@ def handle_disconnect():
 @socketio.on('role_register')
 def handle_role_register(data):
     """Registers connected phone roles and triggers auto-connect call when both are live."""
-    global active_sessions
     role = data.get("role", "UNASSIGNED").upper()
     
     if role in ["PILOT", "DRONE"]:
